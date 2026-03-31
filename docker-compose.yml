@@ -1,0 +1,114 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: solidarity-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SolidaryConnection@2024
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - solidarity-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/local/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - solidarity-network
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./monitoring/local/tempo/tempo.yaml:/etc/tempo.yaml
+      - ./monitoring/local/tempo/tempo-overrides.yaml:/etc/tempo-overrides.yaml
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"   # tempo
+      - "4317:4317"  # otlp grpc
+      - "4318:4318"  # otlp http
+    networks:
+      - solidarity-network
+
+  # And put them in an OTEL collector pipeline...
+  otel-collector:
+    image: otel/opentelemetry-collector:0.86.0
+    command: [ "--config=/etc/otel-collector.yaml" ]
+    volumes:
+      - ./monitoring/local/opentelemetry/otel-collector.yaml:/etc/otel-collector.yaml
+    networks:
+      - solidarity-network
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - solidarity-network
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - solidarity-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/local/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/local/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - solidarity-network
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+
+  api:
+    build:
+      context: .
+      dockerfile: src/SolidarityConnection.Api/Dockerfile
+    container_name: solidarity-api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SolidarityConnectionDb;User Id=sa;Password=SolidaryConnection@2024;TrustServerCertificate=True;MultipleActiveResultSets=true;
+    depends_on:
+      - sqlserver
+    networks:
+      - solidarity-network
+
+volumes:
+  sqlserver_data:
+  prometheus_data:
+  grafana_data:
+  tempo_data:
+
+networks:
+  solidarity-network:
+    driver: bridge

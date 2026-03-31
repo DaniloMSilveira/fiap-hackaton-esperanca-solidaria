@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/core/">
+    <Project Path="src/core/EsperancaSolidaria.Application/EsperancaSolidaria.Application.csproj" />
+    <Project Path="src/core/EsperancaSolidaria.Domain/EsperancaSolidaria.Domain.csproj" />
+    <Project Path="src/core/EsperancaSolidaria.Infra.Data/EsperancaSolidaria.Infra.Data.csproj" />
+    <Project Path="src/core/EsperancaSolidaria.Infra.Security/EsperancaSolidaria.Infra.Security.csproj" />
+  </Folder>
+  <Folder Name="/src/web/">
+    <Project Path="src/web/EsperancaSolidaria.Users.API/EsperancaSolidaria.Users.API.csproj" />
+  </Folder>
+</Solution>
