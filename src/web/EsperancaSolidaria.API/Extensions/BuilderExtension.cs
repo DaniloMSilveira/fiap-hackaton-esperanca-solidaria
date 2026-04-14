@@ -8,6 +8,13 @@ using Microsoft.AspNetCore.Identity;
 using EsperancaSolidaria.Infra.Security.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EsperancaSolidaria.Infra.Security.Contexts;
+using EsperancaSolidaria.Infra.Data.Contexts;
+using EsperancaSolidaria.Application.Services.Interfaces;
+using EsperancaSolidaria.Application.Services;
+using EsperancaSolidaria.Domain.Interfaces.Repositories;
+using EsperancaSolidaria.Infra.Data.Repositories;
+using EsperancaSolidaria.Domain.Interfaces;
+using EsperancaSolidaria.Infra.Data.UnitOfWork;
 namespace EsperancaSolidaria.API.Extensions;
 
 public static class BuilderExtension
@@ -22,20 +29,17 @@ public static class BuilderExtension
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHttpContextAccessor();
 
+        builder.Services.AddAuthentication(builder.Configuration);
         builder.Services.AddDataContexts(builder.Configuration);
         builder.Services.AddServices(builder.Configuration);
-        // builder.Services.AddIdentityAuthentication(builder.Configuration);
         builder.Services.AddCustomSwagger();
         builder.Services.AddCustomMetrics();
     }
 
     private static IServiceCollection AddDataContexts(this IServiceCollection services, IConfiguration configuration)
     {
-        // services.AddDbContext<IdentityDataContext>(options =>
-        //     options.UseSqlServer(configuration.GetConnectionString("FCG")));
-
-        // services.AddDbContext<FCGDataContext>(options =>
-        //     options.UseSqlServer(configuration.GetConnectionString("FCG")));
+        services.AddDbContext<EsperancaSolidariaDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("EsperancaSolidaria")));
 
         // services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -44,21 +48,14 @@ public static class BuilderExtension
 
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // services.AddScoped<IUserContext, UserContext>();
+        // Application Services
+        services.AddScoped<IUsuarioAppService, UsuarioAppService>();
 
-        // services.AddScoped<IIdentityService, IdentityService>();
+        // Unit of Work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-        // services.AddScoped<IUsuarioAppService, UsuarioAppService>();
-        // services.AddScoped<IAutenticacaoAppService, AutenticacaoAppService>();
-
-        // services.AddScoped<IJogoRepository, JogoRepository>();
-        // services.AddScoped<IJogoService, JogoService>();
-        // services.AddScoped<IJogoAppService, JogoAppService>();
-
-        // services.AddScoped<IPromocaoRepository, PromocaoRepository>();
-        // services.AddScoped<IPromocaoService, PromocaoService>();
-        // services.AddScoped<IPromocaoAppService, PromocaoAppService>();
+        // Repositories
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         return services;
     }
@@ -90,58 +87,27 @@ public static class BuilderExtension
         return services;
     }
 
-    public static void AddIdentityAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtAppSettingOptions = configuration.GetSection("Jwt");
-        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetSection("Jwt:Key").Value));
+        var jwtSecret = configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT Secret Key is not configured.");
 
-        services.Configure<JwtOptions>(options =>
-        {
-            options.Issuer = jwtAppSettingOptions[nameof(JwtOptions.Issuer)];
-            options.Audience = jwtAppSettingOptions[nameof(JwtOptions.Audience)];
-            options.SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
-            options.AccessTokenExpiration = int.Parse(jwtAppSettingOptions[nameof(JwtOptions.AccessTokenExpiration)] ?? "0");
-            options.RefreshTokenExpiration = int.Parse(jwtAppSettingOptions[nameof(JwtOptions.RefreshTokenExpiration)] ?? "0");
-        });
-
-        services.Configure<IdentityOptions>(options =>
-        {
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequiredLength = 8;
-        });
-
-        services.AddDefaultIdentity<IdentityCustomUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<IdentityDataContext>()
-            .AddDefaultTokenProviders();
-
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtAppSettingOptions[nameof(JwtOptions.Issuer)],
-
-            ValidateAudience = true,
-            ValidAudience = jwtAppSettingOptions[nameof(JwtOptions.Audience)],
-
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = securityKey,
-
-            RequireExpirationTime = true,
-            ValidateLifetime = true,
-
-            ClockSkew = TimeSpan.Zero
-        };
-
+        // JWT Authentication
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options => 
+        })
+        .AddJwtBearer(options =>
         {
-            options.TokenValidationParameters = tokenValidationParameters;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
         });
     }
 

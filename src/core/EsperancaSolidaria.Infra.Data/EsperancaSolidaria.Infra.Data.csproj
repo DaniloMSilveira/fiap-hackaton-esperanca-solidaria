@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EsperancaSolidaria.Domain\EsperancaSolidaria.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

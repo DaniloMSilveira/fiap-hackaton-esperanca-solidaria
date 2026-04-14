@@ -9,17 +9,19 @@ public static class ApplicationExtensions
 {
     public static void Configure(WebApplication app)
     {
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Esperança Solidária v1");
+                c.RoutePrefix = "swagger";
+            });
         }
 
         app.UseHttpsRedirection();
-
+        app.UseAuthentication();
         app.UseAuthorization();
-
         app.MapControllers();
     }
 }

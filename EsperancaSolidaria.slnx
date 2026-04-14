@@ -7,6 +7,6 @@
     <Project Path="src/core/EsperancaSolidaria.Infra.Security/EsperancaSolidaria.Infra.Security.csproj" />
   </Folder>
   <Folder Name="/src/web/">
-    <Project Path="src/web/EsperancaSolidaria.Users.API/EsperancaSolidaria.Users.API.csproj" />
+    <Project Path="src/web/EsperancaSolidaria.API/EsperancaSolidaria.API.csproj" />
   </Folder>
 </Solution>
