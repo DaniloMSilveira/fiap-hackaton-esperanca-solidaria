@@ -13,6 +13,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
     <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.15.0-beta.1" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
@@ -23,7 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\core\EsperancaSolidaria.Domain\EsperancaSolidaria.Domain.csproj" />
     <ProjectReference Include="..\..\core\EsperancaSolidaria.Application\EsperancaSolidaria.Application.csproj" />
-    <ProjectReference Include="..\..\core\EsperancaSolidaria.Infra.Data\EsperancaSolidaria.Infra.Data.csproj" />
+    <ProjectReference Include="..\..\core\EsperancaSolidaria.Infraestructure\EsperancaSolidaria.Infraestructure.csproj" />
     <ProjectReference Include="..\..\core\EsperancaSolidaria.Infra.Security\EsperancaSolidaria.Infra.Security.csproj" />
   </ItemGroup>
 

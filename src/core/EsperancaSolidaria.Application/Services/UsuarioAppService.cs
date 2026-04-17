@@ -6,6 +6,7 @@ using EsperancaSolidaria.Domain.Enums;
 using EsperancaSolidaria.Domain.Interfaces.Repositories;
 using EsperancaSolidaria.Domain.Interfaces;
 using EsperancaSolidaria.Application.Services.Interfaces;
+using EsperancaSolidaria.BuildingBlocks.Persistence;
 
 namespace EsperancaSolidaria.Application.Services;
 

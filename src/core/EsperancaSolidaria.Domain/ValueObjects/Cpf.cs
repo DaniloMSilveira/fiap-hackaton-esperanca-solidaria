@@ -1,8 +1,9 @@
 using System.Text.RegularExpressions;
+using EsperancaSolidaria.BuildingBlocks.Domain;
 
 namespace EsperancaSolidaria.Domain.ValueObjects;
 
-public class Cpf
+public class Cpf : IValueObject
 {
     public string Value { get; }
 

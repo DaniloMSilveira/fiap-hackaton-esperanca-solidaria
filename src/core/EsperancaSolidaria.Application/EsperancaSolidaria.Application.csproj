@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EsperancaSolidaria.Domain\EsperancaSolidaria.Domain.csproj" />
-    <ProjectReference Include="..\EsperancaSolidaria.Infra.Data\EsperancaSolidaria.Infra.Data.csproj" />
+    <ProjectReference Include="..\EsperancaSolidaria.Infraestructure\EsperancaSolidaria.Infraestructure.csproj" />
   </ItemGroup>
 
 </Project>

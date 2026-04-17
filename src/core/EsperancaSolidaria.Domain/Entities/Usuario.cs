@@ -1,12 +1,11 @@
+using EsperancaSolidaria.BuildingBlocks.Domain;
 using EsperancaSolidaria.Domain.Enums;
-using EsperancaSolidaria.Domain.Interfaces;
 using EsperancaSolidaria.Domain.ValueObjects;
 
 namespace EsperancaSolidaria.Domain.Entities;
 
-public class Usuario : IEntity, IAggregateRoot
+public class Usuario : Entity, IAggregateRoot
 {
-    public Guid Id { get; private set; }
     public string Nome { get; private set; }
     public Email Email { get; private set; }
     public Cpf Cpf { get; private set; }
@@ -23,7 +22,6 @@ public class Usuario : IEntity, IAggregateRoot
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome é obrigatório");
 
-        Id = Guid.NewGuid();
         DataCriacao = DateTime.UtcNow;
 
         Nome = nome;

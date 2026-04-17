@@ -1,8 +1,9 @@
 using System.Net.Mail;
+using EsperancaSolidaria.BuildingBlocks.Domain;
 
 namespace EsperancaSolidaria.Domain.ValueObjects;
 
-public class Email
+public class Email : IValueObject
 {
     public string Value { get; }
 

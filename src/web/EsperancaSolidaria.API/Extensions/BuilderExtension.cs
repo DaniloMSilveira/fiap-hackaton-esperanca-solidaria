@@ -3,18 +3,16 @@ using OpenTelemetry.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using EsperancaSolidaria.Infra.Security.Configurations;
-using Microsoft.AspNetCore.Identity;
-using EsperancaSolidaria.Infra.Security.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using EsperancaSolidaria.Infra.Security.Contexts;
-using EsperancaSolidaria.Infra.Data.Contexts;
+using EsperancaSolidaria.Infraestructure.Contexts;
 using EsperancaSolidaria.Application.Services.Interfaces;
 using EsperancaSolidaria.Application.Services;
 using EsperancaSolidaria.Domain.Interfaces.Repositories;
-using EsperancaSolidaria.Infra.Data.Repositories;
+using EsperancaSolidaria.Infraestructure.Repositories;
 using EsperancaSolidaria.Domain.Interfaces;
-using EsperancaSolidaria.Infra.Data.UnitOfWork;
+using EsperancaSolidaria.Infraestructure.UnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using EsperancaSolidaria.BuildingBlocks.Persistence;
+
 namespace EsperancaSolidaria.API.Extensions;
 
 public static class BuilderExtension
