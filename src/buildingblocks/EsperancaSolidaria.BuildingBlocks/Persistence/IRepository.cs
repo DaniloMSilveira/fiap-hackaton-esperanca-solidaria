@@ -8,8 +8,8 @@ namespace EsperancaSolidaria.BuildingBlocks.Persistence;
 public interface IRepository<TAggregateRoot> 
     where TAggregateRoot : IAggregateRoot
 {
-    Task<TAggregateRoot?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task AddAsync(TAggregateRoot entity, CancellationToken cancellationToken = default);
-    Task UpdateAsync(TAggregateRoot entity, CancellationToken cancellationToken = default);
-    Task DeleteAsync(TAggregateRoot entity, CancellationToken cancellationToken = default);
+    Task<TAggregateRoot?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken = default);
+    void Adicionar(TAggregateRoot entity);
+    void Alterar(TAggregateRoot entity);
+    void Remover(TAggregateRoot entity);
 }

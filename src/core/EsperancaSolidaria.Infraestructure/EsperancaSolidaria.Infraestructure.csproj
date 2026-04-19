@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EsperancaSolidaria.Domain\EsperancaSolidaria.Domain.csproj" />
+    <ProjectReference Include="..\EsperancaSolidaria.Application\EsperancaSolidaria.Application.csproj" />
   </ItemGroup>
 
 </Project>

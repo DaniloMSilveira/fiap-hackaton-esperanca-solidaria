@@ -1,12 +1,10 @@
+using EsperancaSolidaria.BuildingBlocks.Persistence;
 using EsperancaSolidaria.Domain.Entities;
 
 namespace EsperancaSolidaria.Domain.Interfaces.Repositories;
 
-public interface IUsuarioRepository
+public interface IUsuarioRepository : IRepository<Usuario>
 {
-    Task<Usuario?> ObterEntidadePorIdAsync(Guid id);
     Task<bool> ExisteAsync(string email);
-    void Adicionar(Usuario usuario);
-    void Atualizar(Usuario usuario);
-    void Remover(Usuario usuario);
+    Task<Usuario?> ObterPorEmailAsync(string email);
 }

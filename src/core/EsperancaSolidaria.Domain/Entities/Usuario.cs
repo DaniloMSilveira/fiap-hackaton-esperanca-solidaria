@@ -6,44 +6,49 @@ namespace EsperancaSolidaria.Domain.Entities;
 
 public class Usuario : Entity, IAggregateRoot
 {
-    public string Nome { get; private set; }
+    public string NomeCompleto { get; private set; }
     public Email Email { get; private set; }
     public Cpf Cpf { get; private set; }
     public string SenhaCriptografada { get; private set; }
-    public UserRole Perfil { get; private set; }
+    public EPerfilAcesso PerfilAcesso { get; private set; }
     public bool Ativo { get; private set; }
     public DateTime DataCriacao { get; private set; }
+    public string UsuarioCriacao { get; private set; }
     public DateTime? DataAtualizacao { get; private set; }
+    public string? UsuarioAtualizacao { get; private set; }
 
     protected Usuario() { }
 
-    public Usuario(string nome, Email email, Cpf cpf, string senhaCriptografada, UserRole perfil)
+    public Usuario(string nomeCompleto, Email email, Cpf cpf, string senhaCriptografada, EPerfilAcesso perfilAcesso, string usuario)
     {
-        if (string.IsNullOrWhiteSpace(nome))
-            throw new ArgumentException("Nome é obrigatório");
+        if (string.IsNullOrWhiteSpace(nomeCompleto))
+            throw new ArgumentException("NomeCompleto é obrigatório");
 
-        DataCriacao = DateTime.UtcNow;
+        DataCriacao = DateTime.Now;
+        UsuarioCriacao = usuario;
 
-        Nome = nome;
+        NomeCompleto = nomeCompleto;
         Email = email ?? throw new ArgumentNullException(nameof(email));
         Cpf = cpf ?? throw new ArgumentNullException(nameof(cpf));
         SenhaCriptografada = senhaCriptografada ?? throw new ArgumentNullException(nameof(senhaCriptografada));
-        Perfil = perfil;
+        PerfilAcesso = perfilAcesso;
         Ativo = true;
     }
 
-    public void AlterarSenha(string senhaCriptografada)
+    public void AlterarSenha(string senhaCriptografada, string usuario)
     {
         if (string.IsNullOrWhiteSpace(senhaCriptografada))
             throw new ArgumentException("Senha é obrigatória");
 
         SenhaCriptografada = senhaCriptografada;
-        DataAtualizacao = DateTime.UtcNow;
+        DataAtualizacao = DateTime.Now;
+        UsuarioAtualizacao = usuario;
     }
 
-    public void Inativar()
+    public void Inativar(string usuario)
     {
         Ativo = false;
-        DataAtualizacao = DateTime.UtcNow;
+        DataAtualizacao = DateTime.Now;
+        UsuarioAtualizacao = usuario;
     }
 }

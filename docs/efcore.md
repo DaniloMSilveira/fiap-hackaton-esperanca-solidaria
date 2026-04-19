@@ -1,5 +1,16 @@
 
-comando para executar migrations do projeto
+Executas os comandos na pasta raiz do projeto
 
-cd src/core/EsperancaSolidaria.Infraestructure/
-dotnet ef database update -s ../../web/EsperancaSolidaria.API/ -c EsperancaSolidariaDbContext
+1 - Comando para criar uma nova migration
+dotnet ef migrations add TabelaUsuario \
+    -p src/core/EsperancaSolidaria.Infraestructure/ \
+    -s src/web/EsperancaSolidaria.API/ \
+    -c EsperancaSolidariaDbContext \
+    -o Persistence/Migrations
+
+
+2 - comando para executar migrations do projeto
+dotnet ef database update \
+    -p src/core/EsperancaSolidaria.Infraestructure/ \
+    -s src/web/EsperancaSolidaria.API/ \
+    -c EsperancaSolidariaDbContext 

@@ -3,15 +3,16 @@ using OpenTelemetry.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using EsperancaSolidaria.Infraestructure.Contexts;
-using EsperancaSolidaria.Application.Services.Interfaces;
-using EsperancaSolidaria.Application.Services;
+using EsperancaSolidaria.Infraestructure.Persistence.Contexts;
 using EsperancaSolidaria.Domain.Interfaces.Repositories;
-using EsperancaSolidaria.Infraestructure.Repositories;
-using EsperancaSolidaria.Domain.Interfaces;
-using EsperancaSolidaria.Infraestructure.UnitOfWork;
+using EsperancaSolidaria.Infraestructure.Persistence.Repositories;
+using EsperancaSolidaria.Infraestructure.Persistence.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EsperancaSolidaria.BuildingBlocks.Persistence;
+using EsperancaSolidaria.BuildingBlocks.Events;
+using EsperancaSolidaria.Application.Security;
+using EsperancaSolidaria.Infraestructure.Security;
+using EsperancaSolidaria.Application.Commands.Autenticacao.Handlers;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -28,32 +29,45 @@ public static class BuilderExtension
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddAuthentication(builder.Configuration);
-        builder.Services.AddDataContexts(builder.Configuration);
+        builder.Services.AddDataContexts(builder.Configuration, builder.Environment);
         builder.Services.AddServices(builder.Configuration);
         builder.Services.AddCustomSwagger();
         builder.Services.AddCustomMetrics();
     }
 
-    private static IServiceCollection AddDataContexts(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddDataContexts(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         services.AddDbContext<EsperancaSolidariaDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("EsperancaSolidaria")));
-
-        // services.AddScoped<IUnitOfWork, UnitOfWork>();
+        {
+            options.UseSqlServer(configuration.GetConnectionString("EsperancaSolidaria"));
+            if (environment.IsDevelopment())
+            {
+                options.EnableSensitiveDataLogging()
+                    .EnableDetailedErrors()
+                    .LogTo(Console.WriteLine, LogLevel.Information);
+            }
+        });
 
         return services;
     }
 
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Application Services
-        services.AddScoped<IUsuarioAppService, UsuarioAppService>();
+        // Command Handlers
+        services.AddScoped<IAutenticacaoCommandHandler, AutenticacaoCommandHandler>();
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Repositories
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+        // Domain Events
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        // Security
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<IAutenticacaoService, AutenticacaoService>();
 
         return services;
     }
