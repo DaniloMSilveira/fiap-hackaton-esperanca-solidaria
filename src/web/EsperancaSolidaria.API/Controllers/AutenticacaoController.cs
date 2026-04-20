@@ -36,7 +36,7 @@ public class AutenticacaoController : Controller
     [AllowAnonymous]
     [HttpPost("registrar", Name = "RegistrarUsuario")]
     [ProducesResponseType(typeof(CommandResult<RegistrarUsuarioCommandResult>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(CommandResult<RegistrarUsuarioCommandResult>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(CommandResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegistrarUsuario([FromBody] RegistrarUsuarioCommand command)
     {
         var resultado = await _autenticacaoCommandHandler.HandleAsync(command);
@@ -55,8 +55,8 @@ public class AutenticacaoController : Controller
     /// <response code="400">Dados de acesso inválidos.</response>
     [AllowAnonymous]
     [HttpPost("login", Name = "Login")]
-    [ProducesResponseType(typeof(LoginCommand), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(CommandResult<LoginCommandResult>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(CommandResult<LoginCommandResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CommandResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
         var resultado = await _autenticacaoCommandHandler.HandleAsync(command);
@@ -75,5 +75,50 @@ public class AutenticacaoController : Controller
         var userProfile = _userContext.GetProfile();
 
         return Ok(userProfile);
+    }
+
+    /// <summary>
+    /// Altera a senha do usuário autenticado.
+    /// </summary>
+    /// <remarks>
+    /// O usuário deve estar autenticado para realizar esta operação.  
+    /// É necessário informar a senha atual e a nova senha, que deve atender aos critérios de segurança definidos: 
+    /// mínimo de 8 caracteres, com pelo menos uma letra maiúscula, uma minúscula, um número e um símbolo.
+    /// </remarks>
+    /// <param name="command">Dados necessários para alteração da senha.</param>
+    /// <response code="204">Senha alterada com sucesso.</response>
+    /// <response code="400">Requisição inválida ou senha incorreta.</response>
+    [Authorize]
+    [HttpPatch("alterar-senha", Name = "AlterarSenha")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(CommandResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AlterarSenha([FromBody] AlterarSenhaCommand command)
+    {
+        command.PreencherUsuario(_userContext.GetUserName() ?? string.Empty);
+        var resultado = await _autenticacaoCommandHandler.HandleAsync(command);
+
+        return !resultado.IsValid ? BadRequest(resultado) : NoContent();
+    }
+
+    /// <summary>
+    /// Alterar acessos de um usuário no sistema.
+    /// </summary>
+    /// <remarks>
+    /// Requer acesso de gestor. 
+    /// É necessário informar o id do usuário e as roles de acesso
+    /// </remarks>
+    /// <param name="command">Dados necessários para alteração de acessos do usuário.</param>
+    /// <response code="204">Acessos alterados com sucesso.</response>
+    /// <response code="400">Requisição inválida.</response>
+    [Authorize(Roles = Roles.GestorONG)]
+    [HttpPatch("alterar-perfil", Name = "AlterarPerfilUsuario")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(CommandResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AlterarAcessosUsuario([FromBody] AlterarPerfilUsuarioCommand command)
+    {
+        command.PreencherUsuario(_userContext.GetUserName() ?? string.Empty);
+        var resultado = await _autenticacaoCommandHandler.HandleAsync(command);
+
+        return !resultado.IsValid ? BadRequest(resultado) : NoContent();
     }
 }

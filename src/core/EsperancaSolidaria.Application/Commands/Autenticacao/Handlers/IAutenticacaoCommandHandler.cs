@@ -6,7 +6,9 @@ namespace EsperancaSolidaria.Application.Commands.Autenticacao.Handlers;
 
 public interface IAutenticacaoCommandHandler 
     : ICommandHandler<RegistrarUsuarioCommand, CommandResult<RegistrarUsuarioCommandResult>>,
-        ICommandHandler<LoginCommand, CommandResult<LoginCommandResult>>
+        ICommandHandler<LoginCommand, CommandResult<LoginCommandResult>>,
+        ICommandHandler<AlterarSenhaCommand, CommandResult>,
+        ICommandHandler<AlterarPerfilUsuarioCommand, CommandResult>
 {
     
 }

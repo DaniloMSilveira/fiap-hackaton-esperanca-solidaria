@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EsperancaSolidaria.API.Middlewares;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -22,6 +23,13 @@ public static class ApplicationExtensions
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseCustomMiddlewares();
         app.MapControllers();
+    }
+
+    public static WebApplication UseCustomMiddlewares(this WebApplication app)
+    {
+        app.UseMiddleware<ExceptionMiddleware>();
+        return app;
     }
 }

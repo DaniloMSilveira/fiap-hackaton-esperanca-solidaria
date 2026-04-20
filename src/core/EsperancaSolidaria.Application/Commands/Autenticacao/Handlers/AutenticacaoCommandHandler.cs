@@ -46,7 +46,7 @@ public class AutenticacaoCommandHandler : IAutenticacaoCommandHandler
         var (isCommited, commitErrorMessage) = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!isCommited)
         {
-            return CommandResult<RegistrarUsuarioCommandResult>.Fail($"Ocorreu um erro ao persistir o usuário: {commitErrorMessage}");
+            return CommandResult<RegistrarUsuarioCommandResult>.Fail($"Ocorreu um erro ao registrar o usuário: {commitErrorMessage}");
         }
 
         var result = new RegistrarUsuarioCommandResult
@@ -69,16 +69,67 @@ public class AutenticacaoCommandHandler : IAutenticacaoCommandHandler
             return CommandResult<LoginCommandResult>.Fail(commandValidation);
         }
 
-        var user = await _usuarioRepository.ObterPorEmailAsync(command.Email);
-        if (user is null || !_autenticacaoService.VerificarSenha(command.Senha, user.SenhaCriptografada))
+        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Email);
+        if (usuario is null || !_autenticacaoService.VerificarSenha(command.Senha, usuario.SenhaCriptografada))
             return CommandResult<LoginCommandResult>.Fail("Email ou senha inválidos");
 
-        var token = _autenticacaoService.GerarToken(user.Id, user.NomeCompleto, user.Email.Value, user.PerfilAcesso.GetDescription().ToUpper());
+        var token = _autenticacaoService.GerarToken(usuario.Id, usuario.NomeCompleto, usuario.Email.Value, usuario.PerfilAcesso.GetDescription());
         var result = new LoginCommandResult
         {
             Token = token
         };
 
         return CommandResult<LoginCommandResult>.Success(result);
+    }
+
+    public async Task<CommandResult> HandleAsync(AlterarSenhaCommand command, CancellationToken cancellationToken = default)
+    {
+        var commandValidation = command.Validate();
+        if (!commandValidation.IsValid)
+        {
+            return CommandResult.Fail(commandValidation);
+        }
+
+        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Usuario);
+        if (usuario is null)
+            return CommandResult.Fail("Usuário não encontrado");
+
+        if (!_autenticacaoService.VerificarSenha(command.SenhaAtual, usuario.SenhaCriptografada))
+            return CommandResult.Fail("Senha atual incorreta");
+
+        usuario.AlterarSenha(_autenticacaoService.CriptografarSenha(command.NovaSenha), command.Usuario);
+        _usuarioRepository.Alterar(usuario);
+
+        var (isCommited, commitErrorMessage) = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (!isCommited)
+        {
+            return CommandResult.Fail($"Ocorreu um erro ao alterar a senha: {commitErrorMessage}");
+        }
+
+        return CommandResult.Success();
+    }
+
+    public async Task<CommandResult> HandleAsync(AlterarPerfilUsuarioCommand command, CancellationToken cancellationToken = default)
+    {
+        var commandValidation = command.Validate();
+        if (!commandValidation.IsValid)
+        {
+            return CommandResult.Fail(commandValidation);
+        }
+
+        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Email);
+        if (usuario is null)
+            return CommandResult.Fail("Usuário não encontrado");
+
+        usuario.AlterarPerfilAcesso(command.PerfilAcesso, command.Usuario);
+        _usuarioRepository.Alterar(usuario);
+
+        var (isCommited, commitErrorMessage) = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (!isCommited)
+        {
+            return CommandResult.Fail($"Ocorreu um erro ao alterar o perfil do usuário: {commitErrorMessage}");
+        }
+
+        return CommandResult.Success();
     }
 }

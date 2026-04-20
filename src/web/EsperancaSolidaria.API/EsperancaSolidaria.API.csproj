@@ -25,7 +25,6 @@
     <ProjectReference Include="..\..\core\EsperancaSolidaria.Domain\EsperancaSolidaria.Domain.csproj" />
     <ProjectReference Include="..\..\core\EsperancaSolidaria.Application\EsperancaSolidaria.Application.csproj" />
     <ProjectReference Include="..\..\core\EsperancaSolidaria.Infraestructure\EsperancaSolidaria.Infraestructure.csproj" />
-    <ProjectReference Include="..\..\core\EsperancaSolidaria.Infra.Security\EsperancaSolidaria.Infra.Security.csproj" />
   </ItemGroup>
 
 </Project>

@@ -45,6 +45,13 @@ public class Usuario : Entity, IAggregateRoot
         UsuarioAtualizacao = usuario;
     }
 
+    public void AlterarPerfilAcesso(EPerfilAcesso perfilAcesso, string usuario)
+    {
+        PerfilAcesso = perfilAcesso;
+        DataAtualizacao = DateTime.Now;
+        UsuarioAtualizacao = usuario;
+    }
+
     public void Inativar(string usuario)
     {
         Ativo = false;

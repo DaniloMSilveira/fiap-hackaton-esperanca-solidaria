@@ -7,6 +7,6 @@ public enum EPerfilAcesso
     [Description("Doador")]
     Doador = 1,
     
-    [Description("Gestor ONG")]
+    [Description("GestorONG")]
     GestorONG = 2
 }
