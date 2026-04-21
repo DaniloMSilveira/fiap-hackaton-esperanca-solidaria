@@ -4,20 +4,25 @@ using EsperancaSolidaria.Domain.Entities;
 using EsperancaSolidaria.Domain.Enums;
 using EsperancaSolidaria.Domain.Interfaces.Repositories;
 using EsperancaSolidaria.Domain.ValueObjects;
+using EsperancaSolidaria.Infraestructure.Persistence.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace EsperancaSolidaria.API.Extensions;
 
-public static class SeedDataExtension
+public static class SeedDatabaseExtension
 {
-    public static async Task SeedAdminUserAsync(this WebApplication app)
+    public static async Task SeedDatabaseAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
         var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger("SeedDataExtension");
+        var esperancaSolidariaDbContext = scope.ServiceProvider.GetRequiredService<EsperancaSolidariaDbContext>();
         var usuarioRepository = scope.ServiceProvider.GetRequiredService<IUsuarioRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var autenticacaoService = scope.ServiceProvider.GetRequiredService<IAutenticacaoService>();
+
+        await esperancaSolidariaDbContext.Database.MigrateAsync();
 
         var email = configuration["SeedAdmin:Email"];
         var password = configuration["SeedAdmin:Password"];
@@ -39,12 +44,12 @@ public static class SeedDataExtension
         var senhaCriptografada = autenticacaoService.CriptografarSenha(password);
 
         var administrator = new Usuario(
-            nomeCompleto: "Gestor",
+            nomeCompleto: "Admin",
             email: new Email(email),
             cpf: cpf,
             senhaCriptografada: senhaCriptografada,
             perfilAcesso: EPerfilAcesso.GestorONG,
-            usuario: "SeedAdmin"
+            usuario: "admin"
         );
 
         usuarioRepository.Adicionar(administrator);

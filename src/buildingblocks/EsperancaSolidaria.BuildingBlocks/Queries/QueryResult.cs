@@ -8,36 +8,32 @@ namespace EsperancaSolidaria.BuildingBlocks.Queries;
 /// </summary>
 public class QueryResult<TResult>
 {
-    public bool Success { get; }
+    public bool IsValid { get; }
     public TResult? Data { get; }
     public IReadOnlyCollection<string> Errors { get; }
 
-    /// <summary>
-    /// Construtor para resultado bem-sucedido.
-    /// </summary>
-    public QueryResult(TResult data)
+    public QueryResult(bool isValid, IEnumerable<string> errors, TResult? data = default)
     {
-        Success = true;
+        IsValid = isValid;
+        Errors = errors.ToList();
         Data = data;
-        Errors = Array.Empty<string>();
     }
 
     /// <summary>
-    /// Construtor para resultado com falhas de validação.
+    /// Cria um resultado de sucesso com dados tipados.
     /// </summary>
-    public QueryResult(ValidationResult validationResult)
-    {
-        Success = validationResult.IsValid;
-        Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-        Data = default;
-    }
+    public static QueryResult<TResult> Success(TResult data)
+        => new QueryResult<TResult>(true, Array.Empty<string>(), data);
 
     /// <summary>
-    /// Método auxiliar para validar parâmetros de uma query.
+    /// Cria um resultado de falha com uma única mensagem.
     /// </summary>
-    public static QueryResult<TResult> Validate<TQuery>(TQuery query, IValidator<TQuery> validator)
-    {
-        var result = validator.Validate(query);
-        return new QueryResult<TResult>(result);
-    }
+    public static QueryResult<TResult> Fail(string errorMessage)
+        => new QueryResult<TResult>(false, [errorMessage]);
+
+    /// <summary>
+    /// Cria um resultado de falha a partir de um ValidationResult do FluentValidation.
+    /// </summary>
+    public static QueryResult<TResult> Fail(ValidationResult validationResult)
+        => new QueryResult<TResult>(false, validationResult.Errors.Select(e => e.ErrorMessage));
 }

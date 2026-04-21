@@ -24,6 +24,22 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email.Value == email);
     }
 
+    public async Task<IEnumerable<Usuario>> ConsultarUsuariosAsync(string? nome, string? email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Usuarios
+            .AsNoTracking()
+            .Where(u => (string.IsNullOrEmpty(nome) || u.NomeCompleto.Contains(nome)) 
+                && (string.IsNullOrEmpty(email) || u.Email.Value.Contains(email)))
+            .ToListAsync(cancellationToken);
+    }
+
+    #region Default
+
+    public async Task<IEnumerable<Usuario>> ObterTodosAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Usuarios.ToListAsync(cancellationToken);
+    }
+
     public async Task<Usuario?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
@@ -43,4 +59,11 @@ public class UsuarioRepository : IUsuarioRepository
     {
         _context.Usuarios.Remove(entity);
     }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+    }
+
+    #endregion
 }

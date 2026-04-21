@@ -21,32 +21,28 @@ public class Usuario : Entity, IAggregateRoot
 
     public Usuario(string nomeCompleto, Email email, Cpf cpf, string senhaCriptografada, EPerfilAcesso perfilAcesso, string usuario)
     {
-        if (string.IsNullOrWhiteSpace(nomeCompleto))
-            throw new ArgumentException("NomeCompleto é obrigatório");
-
         DataCriacao = DateTime.Now;
         UsuarioCriacao = usuario;
 
         NomeCompleto = nomeCompleto;
-        Email = email ?? throw new ArgumentNullException(nameof(email));
-        Cpf = cpf ?? throw new ArgumentNullException(nameof(cpf));
-        SenhaCriptografada = senhaCriptografada ?? throw new ArgumentNullException(nameof(senhaCriptografada));
+        Email = email;
+        Cpf = cpf;
+        SenhaCriptografada = senhaCriptografada;
         PerfilAcesso = perfilAcesso;
         Ativo = true;
     }
 
     public void AlterarSenha(string senhaCriptografada, string usuario)
     {
-        if (string.IsNullOrWhiteSpace(senhaCriptografada))
-            throw new ArgumentException("Senha é obrigatória");
-
         SenhaCriptografada = senhaCriptografada;
         DataAtualizacao = DateTime.Now;
         UsuarioAtualizacao = usuario;
     }
 
-    public void AlterarPerfilAcesso(EPerfilAcesso perfilAcesso, string usuario)
+    public void AlterarDados(string nomeCompleto, Cpf cpf, EPerfilAcesso perfilAcesso, string usuario)
     {
+        NomeCompleto = nomeCompleto;
+        Cpf = cpf ?? throw new ArgumentNullException(nameof(cpf));
         PerfilAcesso = perfilAcesso;
         DataAtualizacao = DateTime.Now;
         UsuarioAtualizacao = usuario;
@@ -55,6 +51,13 @@ public class Usuario : Entity, IAggregateRoot
     public void Inativar(string usuario)
     {
         Ativo = false;
+        DataAtualizacao = DateTime.Now;
+        UsuarioAtualizacao = usuario;
+    }
+
+    public void Ativar(string usuario)
+    {
+        Ativo = true;
         DataAtualizacao = DateTime.Now;
         UsuarioAtualizacao = usuario;
     }

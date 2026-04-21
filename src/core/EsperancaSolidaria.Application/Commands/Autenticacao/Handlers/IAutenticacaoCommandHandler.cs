@@ -5,10 +5,9 @@ using EsperancaSolidaria.BuildingBlocks.Commands;
 namespace EsperancaSolidaria.Application.Commands.Autenticacao.Handlers;
 
 public interface IAutenticacaoCommandHandler 
-    : ICommandHandler<RegistrarUsuarioCommand, CommandResult<RegistrarUsuarioCommandResult>>,
-        ICommandHandler<LoginCommand, CommandResult<LoginCommandResult>>,
-        ICommandHandler<AlterarSenhaCommand, CommandResult>,
-        ICommandHandler<AlterarPerfilUsuarioCommand, CommandResult>
+    : ICommandHandler<RegistrarUsuarioCommand, CommandResult<RegistrarUsuarioResult>>,
+        ICommandHandler<LoginCommand, CommandResult<LoginResult>>,
+        ICommandHandler<AlterarSenhaCommand, CommandResult>
 {
     
 }

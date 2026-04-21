@@ -1,4 +1,4 @@
-using EsperancaSolidaria.Domain.Helpers;
+using EsperancaSolidaria.BuildingBlocks.Validators;
 using FluentValidation;
 
 namespace EsperancaSolidaria.Application.Commands.Autenticacao.Inputs;
@@ -41,7 +41,7 @@ public class AlterarSenhaCommandValidator : AbstractValidator<AlterarSenhaComman
 
         RuleFor(x => x.NovaSenha)
             .NotEmpty().WithMessage("NovaSenha é obrigatória")
-            .Must(c => ValidatorHelper.ValidarSenhaForte(c)).WithMessage("NovaSenha deve conter no mínimo 8 caracteres, com pelo menos uma letra maiúscula, uma minúscula, um número e um símbolo");
+            .Must(c => PasswordValidator.StrongPasswordValidate(c)).WithMessage("NovaSenha deve conter no mínimo 8 caracteres, com pelo menos uma letra maiúscula, uma minúscula, um número e um símbolo");
 
         RuleFor(x => x.ConfirmacaoNovaSenha)
             .NotEmpty().WithMessage("ConfirmacaoNovaSenha é obrigatória")

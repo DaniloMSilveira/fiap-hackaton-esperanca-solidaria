@@ -13,6 +13,8 @@ using EsperancaSolidaria.BuildingBlocks.Events;
 using EsperancaSolidaria.Application.Security;
 using EsperancaSolidaria.Infraestructure.Security;
 using EsperancaSolidaria.Application.Commands.Autenticacao.Handlers;
+using EsperancaSolidaria.Application.Commands.Usuarios.Handlers;
+using EsperancaSolidaria.Application.Queries.Usuarios.Handlers;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -55,6 +57,10 @@ public static class BuilderExtension
     {
         // Command Handlers
         services.AddScoped<IAutenticacaoCommandHandler, AutenticacaoCommandHandler>();
+        services.AddScoped<IUsuarioCommandHandler, UsuarioCommandHandler>();
+
+        // Query Handlers
+        services.AddScoped<IUsuarioQueryHandler, UsuarioQueryHandler>();
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -1,17 +1,18 @@
 using EsperancaSolidaria.BuildingBlocks.Validators;
 using FluentValidation;
 
-namespace EsperancaSolidaria.Application.Commands.Autenticacao.Inputs;
+namespace EsperancaSolidaria.Application.Commands.Usuarios.Inputs;
 
-public class RegistrarUsuarioCommand : Command
+public class CriarUsuarioCommand : Command
 {
     public string NomeCompleto { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
     public string Cpf { get; private set; } = string.Empty;
     public string Senha { get; private set; } = string.Empty;
     public string ConfirmacaoSenha { get; private set; } = string.Empty;
+    public string Usuario { get; private set; } = string.Empty;
 
-    public RegistrarUsuarioCommand(string nomeCompleto, string email, string cpf, string senha, string confirmacaoSenha)
+    public CriarUsuarioCommand(string nomeCompleto, string email, string cpf, string senha, string confirmacaoSenha)
     {
         NomeCompleto = nomeCompleto;
         Email = email;
@@ -20,15 +21,20 @@ public class RegistrarUsuarioCommand : Command
         ConfirmacaoSenha = confirmacaoSenha;
     }
 
+    public void PreencherUsuario(string usuario)
+    {
+        Usuario = usuario;
+    }
+
     protected override IValidator GetValidator()
     {
-        return new RegistrarUsuarioCommandValidator();
+        return new CriarUsuarioCommandValidator();
     }
 }
 
-public class RegistrarUsuarioCommandValidator : AbstractValidator<RegistrarUsuarioCommand>
+public class CriarUsuarioCommandValidator : AbstractValidator<CriarUsuarioCommand>
 {
-    public RegistrarUsuarioCommandValidator()
+    public CriarUsuarioCommandValidator()
     {
         RuleFor(x => x.NomeCompleto)
             .NotEmpty().WithMessage("NomeCompleto é obrigatório")
@@ -40,7 +46,7 @@ public class RegistrarUsuarioCommandValidator : AbstractValidator<RegistrarUsuar
 
         RuleFor(x => x.Cpf)
             .NotEmpty().WithMessage("CPF é obrigatório")
-            .Matches(@"^\d{11}$|^\d{3}\.\d{3}\.\d{3}-\d{2}$").WithMessage("CPF deve conter 11 dígitos");
+            .Must(c => CPFValidator.IsValidCpf(c)).WithMessage("CPF inválido");
 
         RuleFor(x => x.Senha)
             .NotEmpty().WithMessage("Senha é obrigatória")
@@ -49,5 +55,8 @@ public class RegistrarUsuarioCommandValidator : AbstractValidator<RegistrarUsuar
         RuleFor(x => x.ConfirmacaoSenha)
             .NotEmpty().WithMessage("Confirmação de senha é obrigatória")
             .Equal(x => x.Senha).WithMessage("Confirmação de senha deve ser igual à senha");
+
+        RuleFor(x => x.Usuario)
+            .NotEmpty().WithMessage("Usuário é obrigatório");
     }
 }
