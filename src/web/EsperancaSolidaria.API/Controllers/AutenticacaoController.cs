@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EsperancaSolidaria.Users.API.Controllers;
 
+[ApiController]
 [Authorize]
 [Route("autenticacao")]
 public class AutenticacaoController : Controller

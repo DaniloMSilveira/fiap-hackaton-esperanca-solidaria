@@ -15,6 +15,10 @@ using EsperancaSolidaria.Infraestructure.Security;
 using EsperancaSolidaria.Application.Commands.Autenticacao.Handlers;
 using EsperancaSolidaria.Application.Commands.Usuarios.Handlers;
 using EsperancaSolidaria.Application.Queries.Usuarios.Handlers;
+using EsperancaSolidaria.Application.Commands.Campanhas.Handlers;
+using EsperancaSolidaria.Application.Queries.Campanhas.Handlers;
+using EsperancaSolidaria.Application.Commands.Doacoes.Handlers;
+using EsperancaSolidaria.Application.Queries.Doacoes.Handlers;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -58,15 +62,21 @@ public static class BuilderExtension
         // Command Handlers
         services.AddScoped<IAutenticacaoCommandHandler, AutenticacaoCommandHandler>();
         services.AddScoped<IUsuarioCommandHandler, UsuarioCommandHandler>();
+        services.AddScoped<ICampanhaCommandHandler, CampanhaCommandHandler>();
+        services.AddScoped<IDoacaoCommandHandler, DoacaoCommandHandler>();
 
         // Query Handlers
         services.AddScoped<IUsuarioQueryHandler, UsuarioQueryHandler>();
+        services.AddScoped<ICampanhaQueryHandler, CampanhaQueryHandler>();
+        services.AddScoped<IDoacaoQueryHandler, DoacaoQueryHandler>();
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Repositories
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<ICampanhaRepository, CampanhaRepository>();
+        services.AddScoped<IDoacaoRepository, DoacaoRepository>();
 
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();

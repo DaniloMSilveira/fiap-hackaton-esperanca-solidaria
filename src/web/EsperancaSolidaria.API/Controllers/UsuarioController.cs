@@ -1,8 +1,9 @@
 using EsperancaSolidaria.Application.Commands.Usuarios.Handlers;
 using EsperancaSolidaria.Application.Commands.Usuarios.Inputs;
 using EsperancaSolidaria.Application.Commands.Usuarios.Results;
+using EsperancaSolidaria.Application.Queries.Usuarios;
 using EsperancaSolidaria.Application.Queries.Usuarios.Handlers;
-using EsperancaSolidaria.Application.Queries.Usuarios.Inputs;
+using EsperancaSolidaria.Application.Queries.Usuarios.Results;
 using EsperancaSolidaria.Application.Security;
 using EsperancaSolidaria.BuildingBlocks.Commands;
 using EsperancaSolidaria.BuildingBlocks.Queries;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EsperancaSolidaria.API.Controllers;
 
+[ApiController]
 [Authorize]
 [Route("usuarios")]
 public class UsuarioController : Controller
@@ -46,17 +48,17 @@ public class UsuarioController : Controller
     /// <response code="400">Parâmetros de paginação inválidos.</response>
     [Authorize(Roles = Roles.GestorONG)]
     [HttpGet(Name = "ConsultarUsuarios")]
-    [ProducesResponseType(typeof(PaginatedResult<UsuarioListaResult>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(PaginatedResult<UsuarioListaResult>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(PaginatedResult<UsuarioListaQueryResult>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaginatedResult<UsuarioListaQueryResult>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConsultarUsuarios([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10, 
         [FromQuery] string? nome = null, [FromQuery] string? email = null)
     {
         var query = new ConsultarUsuariosQuery(pagina, tamanhoPagina, nome, email);
         var resultado = await _usuarioQueryHandler.HandleAsync(query);
 
-        return !resultado.IsValid
-            ? BadRequest(resultado) 
-            : Ok(resultado.Data);
+        return resultado is null
+            ? BadRequest(new { Message = "Parâmetros de paginação inválidos." })
+            : Ok(resultado);
     }
 
     /// <summary>
@@ -71,17 +73,17 @@ public class UsuarioController : Controller
     /// <response code="404">Usuário não encontrado.</response>
     [Authorize(Roles = Roles.GestorONG)]
     [HttpGet("{id}", Name = "ObterUsuarioPorId")]
-    [ProducesResponseType(typeof(UsuarioResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UsuarioQueryResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObterUsuarioPorId([FromRoute] Guid id)
     {
         var query = new ObterUsuarioPorIdQuery(id);
         var resultado = await _usuarioQueryHandler.HandleAsync(query);
 
-        if (!resultado.IsValid || resultado.Data is null)
-            return NotFound();
+        if (resultado == null)
+            return NotFound(new { Message = "Usuário não encontrado." });
 
-        return Ok(resultado.Data);
+        return Ok(resultado);
     }
 
 

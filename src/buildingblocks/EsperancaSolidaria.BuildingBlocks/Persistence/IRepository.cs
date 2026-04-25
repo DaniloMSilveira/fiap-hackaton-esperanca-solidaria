@@ -5,12 +5,12 @@ namespace EsperancaSolidaria.BuildingBlocks.Persistence;
 /// <summary>
 /// Contrato genérico para repositórios de agregados.
 /// </summary>
-public interface IRepository<TAggregateRoot> : IDisposable
-    where TAggregateRoot : IAggregateRoot
+public interface IRepository<TEntity> : IDisposable
+    where TEntity : BaseEntity
 {
-    Task<IEnumerable<TAggregateRoot>> ObterTodosAsync(CancellationToken cancellationToken = default);
-    Task<TAggregateRoot?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken = default);
-    void Adicionar(TAggregateRoot entity);
-    void Alterar(TAggregateRoot entity);
-    void Remover(TAggregateRoot entity);
+    Task<IEnumerable<TEntity>> ObterTodosAsync(CancellationToken cancellationToken = default);
+    Task<TEntity?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken = default);
+    void Adicionar(TEntity entity);
+    void Alterar(TEntity entity);
+    void Remover(TEntity entity);
 }

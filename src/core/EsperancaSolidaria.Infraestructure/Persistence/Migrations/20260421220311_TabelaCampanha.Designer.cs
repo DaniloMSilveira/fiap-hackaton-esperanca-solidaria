@@ -4,6 +4,7 @@ using EsperancaSolidaria.Infraestructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EsperancaSolidaria.Infraestructure.Persistence.Migrations
 {
     [DbContext(typeof(EsperancaSolidariaDbContext))]
-    partial class EsperancaSolidariaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260421220311_TabelaCampanha")]
+    partial class TabelaCampanha
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,46 +79,6 @@ namespace EsperancaSolidaria.Infraestructure.Persistence.Migrations
                     b.ToTable("Campanha", (string)null);
                 });
 
-            modelBuilder.Entity("EsperancaSolidaria.Domain.Entities.Doacao", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CampanhaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DataCriacao")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<DateTime>("DataDoacao")
-                        .HasColumnType("datetime");
-
-                    b.Property<Guid>("DoadorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ReferenciaPagamento")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<decimal>("Valor")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CampanhaId");
-
-                    b.HasIndex("DoadorId");
-
-                    b.HasIndex("ReferenciaPagamento")
-                        .IsUnique();
-
-                    b.ToTable("Doacao", (string)null);
-                });
-
             modelBuilder.Entity("EsperancaSolidaria.Domain.Entities.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -160,25 +123,6 @@ namespace EsperancaSolidaria.Infraestructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuario", (string)null);
-                });
-
-            modelBuilder.Entity("EsperancaSolidaria.Domain.Entities.Doacao", b =>
-                {
-                    b.HasOne("EsperancaSolidaria.Domain.Entities.Campanha", "Campanha")
-                        .WithMany()
-                        .HasForeignKey("CampanhaId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EsperancaSolidaria.Domain.Entities.Usuario", "Doador")
-                        .WithMany()
-                        .HasForeignKey("DoadorId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Campanha");
-
-                    b.Navigation("Doador");
                 });
 
             modelBuilder.Entity("EsperancaSolidaria.Domain.Entities.Usuario", b =>

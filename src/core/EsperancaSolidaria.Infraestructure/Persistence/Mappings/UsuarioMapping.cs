@@ -9,6 +9,8 @@ public class UsuarioMapping : IEntityTypeConfiguration<Usuario>
 {
     public void Configure(EntityTypeBuilder<Usuario> builder)
     {
+        builder.ToTable("Usuario");
+        
         builder.HasKey(u => u.Id);
         
         builder.OwnsOne(o => o.Email, opt =>
@@ -58,7 +60,5 @@ public class UsuarioMapping : IEntityTypeConfiguration<Usuario>
         builder.Property(u => u.UsuarioAtualizacao)
             .IsRequired(false)
             .HasMaxLength(255);
-
-        builder.ToTable("Usuario");
     }
 }

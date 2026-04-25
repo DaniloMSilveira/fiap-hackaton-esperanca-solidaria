@@ -30,7 +30,7 @@ public class AutenticacaoCommandHandler : IAutenticacaoCommandHandler
         if (!commandValidation.IsValid)
             return CommandResult<RegistrarUsuarioResult>.Fail(commandValidation);
 
-        var existeUsuario = await _usuarioRepository.ExisteAsync(command.Email);
+        var existeUsuario = await _usuarioRepository.ExisteAsync(command.Email, cancellationToken);
         if (existeUsuario)
             return CommandResult<RegistrarUsuarioResult>.Fail("Já existe um usuário cadastrado com este e-mail.");
 
@@ -63,7 +63,7 @@ public class AutenticacaoCommandHandler : IAutenticacaoCommandHandler
         if (!commandValidation.IsValid)
             return CommandResult<LoginResult>.Fail(commandValidation);
 
-        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Email);
+        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Email, cancellationToken);
         if (usuario is null || !_autenticacaoService.VerificarSenha(command.Senha, usuario.SenhaCriptografada))
             return CommandResult<LoginResult>.Fail("Email ou senha inválidos");
 
@@ -82,7 +82,7 @@ public class AutenticacaoCommandHandler : IAutenticacaoCommandHandler
         if (!commandValidation.IsValid)
             return CommandResult.Fail(commandValidation);
 
-        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Usuario);
+        var usuario = await _usuarioRepository.ObterPorEmailAsync(command.Usuario, cancellationToken);
         if (usuario is null)
             return CommandResult.Fail("Usuário não encontrado");
 

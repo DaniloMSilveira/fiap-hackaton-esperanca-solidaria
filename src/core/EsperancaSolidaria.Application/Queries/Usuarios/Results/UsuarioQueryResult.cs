@@ -1,11 +1,11 @@
 using EsperancaSolidaria.Domain.Enums;
 
-namespace EsperancaSolidaria.Application.Queries.Usuarios.Inputs;
+namespace EsperancaSolidaria.Application.Queries.Usuarios.Results;
 
 /// <summary>
 /// Representa os dados completos de um usuário
 /// </summary>
-public class UsuarioResult
+public class UsuarioQueryResult
 {
     public Guid Id { get; set; }
     public string NomeCompleto { get; set; } = string.Empty;

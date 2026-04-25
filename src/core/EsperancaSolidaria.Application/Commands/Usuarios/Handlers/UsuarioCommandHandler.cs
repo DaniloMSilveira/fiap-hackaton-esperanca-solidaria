@@ -29,7 +29,7 @@ public class UsuarioCommandHandler : IUsuarioCommandHandler
         if (!commandValidation.IsValid)
             return CommandResult<CriarUsuarioResult>.Fail(commandValidation);
 
-        var existeUsuario = await _usuarioRepository.ExisteAsync(command.Email);
+        var existeUsuario = await _usuarioRepository.ExisteAsync(command.Email, cancellationToken);
         if (existeUsuario)
             return CommandResult<CriarUsuarioResult>.Fail("Já existe um usuário cadastrado com este e-mail.");
 
@@ -63,7 +63,7 @@ public class UsuarioCommandHandler : IUsuarioCommandHandler
         if (!commandValidation.IsValid)
             return CommandResult<EditarUsuarioResult>.Fail(commandValidation);
 
-        var usuario = await _usuarioRepository.ObterPorIdAsync(command.Id);
+        var usuario = await _usuarioRepository.ObterPorIdAsync(command.Id, cancellationToken);
         if (usuario is null)
             return CommandResult<EditarUsuarioResult>.Fail("Usuário não encontrado.");
 
@@ -113,7 +113,7 @@ public class UsuarioCommandHandler : IUsuarioCommandHandler
         if (!commandValidation.IsValid)
             return CommandResult.Fail(commandValidation);
 
-        var usuario = await _usuarioRepository.ObterPorIdAsync(command.Id);
+        var usuario = await _usuarioRepository.ObterPorIdAsync(command.Id, cancellationToken);
         if (usuario is null)
             return CommandResult.Fail("Usuário não encontrado.");
 

@@ -1,8 +1,7 @@
-using EsperancaSolidaria.Application.Queries.Usuarios.Inputs;
+using EsperancaSolidaria.Application.Queries.Usuarios.Results;
 using EsperancaSolidaria.BuildingBlocks.Extensions;
 using EsperancaSolidaria.BuildingBlocks.Queries;
 using EsperancaSolidaria.Domain.Interfaces.Repositories;
-using FluentValidation;
 
 namespace EsperancaSolidaria.Application.Queries.Usuarios.Handlers;
 
@@ -15,18 +14,14 @@ public class UsuarioQueryHandler : IUsuarioQueryHandler
         _usuarioRepository = usuarioRepository;
     }
 
-    public async Task<QueryResult<PaginatedResult<UsuarioListaResult>>> HandleAsync(ConsultarUsuariosQuery query, CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<UsuarioListaQueryResult>> HandleAsync(ConsultarUsuariosQuery query, CancellationToken cancellationToken = default)
     {
-        var queryValidation = query.Validate();
-        if (!queryValidation.IsValid)
-            return QueryResult<PaginatedResult<UsuarioListaResult>>.Fail(queryValidation);
-
         var usuarios = await _usuarioRepository.ConsultarUsuariosAsync(query.Nome, query.Email, cancellationToken);
 
         var usuariosPaginado = usuarios
             .Skip((query.Pagina - 1) * query.TamanhoPagina)
             .Take(query.TamanhoPagina)
-            .Select(u => new UsuarioListaResult
+            .Select(u => new UsuarioListaQueryResult
             {
                 Id = u.Id,
                 NomeCompleto = u.NomeCompleto,
@@ -36,27 +31,23 @@ public class UsuarioQueryHandler : IUsuarioQueryHandler
             })
             .ToList();
 
-        var resultadoPaginado = new PaginatedResult<UsuarioListaResult>(
+        var resultadoPaginado = new PaginatedResult<UsuarioListaQueryResult>(
             page: query.Pagina,
             pageSize: query.TamanhoPagina,
             totalItems: usuarios.Count(),
             items: usuariosPaginado
         );
 
-        return QueryResult<PaginatedResult<UsuarioListaResult>>.Success(resultadoPaginado);
+        return resultadoPaginado;
     }
 
-    public async Task<QueryResult<UsuarioResult>> HandleAsync(ObterUsuarioPorIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<UsuarioQueryResult?> HandleAsync(ObterUsuarioPorIdQuery query, CancellationToken cancellationToken = default)
     {
-        var queryValidation = query.Validate();
-        if (!queryValidation.IsValid)
-            return QueryResult<UsuarioResult>.Fail(queryValidation);
-
         var usuario = await _usuarioRepository.ObterPorIdAsync(query.Id, cancellationToken);
         if (usuario == null)
-            return QueryResult<UsuarioResult>.Fail("Usuário não encontrado.");
+            return null;
 
-        var usuarioResult = new UsuarioResult
+        var resultado = new UsuarioQueryResult
         {
             Id = usuario.Id,
             NomeCompleto = usuario.NomeCompleto,
@@ -68,6 +59,6 @@ public class UsuarioQueryHandler : IUsuarioQueryHandler
             Ativo = usuario.Ativo
         };
 
-        return QueryResult<UsuarioResult>.Success(usuarioResult);
+        return resultado;
     }
 }

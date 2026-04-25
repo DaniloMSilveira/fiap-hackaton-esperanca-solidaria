@@ -8,68 +8,43 @@ namespace EsperancaSolidaria.BuildingBlocks.Commands;
 /// <summary>
 /// Resultado padrão para execução de comandos CQRS.
 /// </summary>
-public class CommandResult
+public class CommandResult<T>
 {
     public bool IsValid { get; }
     public IReadOnlyCollection<string> Errors { get; }
-    public object? Data { get; }
+    public T? Data { get; }
 
-    private CommandResult(bool isValid, IEnumerable<string> errors, object? data = null)
+    protected CommandResult(bool isValid, IEnumerable<string> errors, T? data = default)
     {
         IsValid = isValid;
         Errors = errors.ToList();
         Data = data;
     }
 
-    /// <summary>
-    /// Cria um resultado de sucesso com dados tipados.
-    /// </summary>
-    public static CommandResult Success(object? data = null)
-        => new CommandResult(true, Array.Empty<string>(), data);
+    public static CommandResult<T> Success(T? data = default)
+        => new CommandResult<T>(true, Array.Empty<string>(), data);
 
-    /// <summary>
-    /// Cria um resultado de falha com uma única mensagem.
-    /// </summary>
-    public static CommandResult Fail(string errorMessage)
-        => new CommandResult(false, [errorMessage]);
+    public static CommandResult<T> Fail(string errorMessage)
+        => new CommandResult<T>(false, new[] { errorMessage });
 
-    /// <summary>
-    /// Cria um resultado de falha a partir de um ValidationResult do FluentValidation.
-    /// </summary>
-    public static CommandResult Fail(ValidationResult validationResult)
-        => new CommandResult(false, validationResult.Errors.Select(e => e.ErrorMessage));
+    public static CommandResult<T> Fail(ValidationResult validationResult)
+        => new CommandResult<T>(false, validationResult.Errors.Select(e => e.ErrorMessage));
 }
 
-
-
-public class CommandResult<TResponse>
+/// <summary>
+/// Alias para CommandResult sem dados, quando o resultado é apenas sucesso ou falha
+/// </summary>
+public class CommandResult : CommandResult<object>
 {
-    public bool IsValid { get; }
-    public IReadOnlyCollection<string> Errors { get; }
-    public TResponse? Data { get; }
+    protected CommandResult(bool isValid, IEnumerable<string> errors, object? data = null)
+        : base(isValid, errors, data) { }
 
-    private CommandResult(bool isValid, IEnumerable<string> errors, TResponse? data = default)
-    {
-        IsValid = isValid;
-        Errors = errors.ToList();
-        Data = data;
-    }
+    public static new CommandResult Success()
+        => new CommandResult(true, Array.Empty<string>(), null);
 
-    /// <summary>
-    /// Cria um resultado de sucesso com dados tipados.
-    /// </summary>
-    public static CommandResult<TResponse> Success(TResponse data)
-        => new CommandResult<TResponse>(true, Array.Empty<string>(), data);
+    public static new CommandResult Fail(string errorMessage)
+        => new CommandResult(false, new[] { errorMessage });
 
-    /// <summary>
-    /// Cria um resultado de falha com uma única mensagem.
-    /// </summary>
-    public static CommandResult<TResponse> Fail(string errorMessage)
-        => new CommandResult<TResponse>(false, [errorMessage]);
-
-    /// <summary>
-    /// Cria um resultado de falha a partir de um ValidationResult do FluentValidation.
-    /// </summary>
-    public static CommandResult<TResponse> Fail(ValidationResult validationResult)
-        => new CommandResult<TResponse>(false, validationResult.Errors.Select(e => e.ErrorMessage));
+    public static new CommandResult Fail(ValidationResult validationResult)
+        => new CommandResult(false, validationResult.Errors.Select(e => e.ErrorMessage));
 }

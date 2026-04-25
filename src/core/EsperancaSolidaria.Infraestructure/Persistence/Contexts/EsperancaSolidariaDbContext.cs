@@ -12,10 +12,14 @@ public class EsperancaSolidariaDbContext : DbContext
     }
 
     public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<Campanha> Campanhas { get; set; }
+    public DbSet<Doacao> Doacoes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         new UsuarioMapping().Configure(modelBuilder.Entity<Usuario>());
+        new CampanhaMapping().Configure(modelBuilder.Entity<Campanha>());
+        new DoacaoMapping().Configure(modelBuilder.Entity<Doacao>());
         base.OnModelCreating(modelBuilder);
     }
 }

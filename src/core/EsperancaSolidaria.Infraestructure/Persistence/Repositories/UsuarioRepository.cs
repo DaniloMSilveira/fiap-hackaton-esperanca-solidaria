@@ -14,14 +14,14 @@ public class UsuarioRepository : IUsuarioRepository
         _context = context;
     }
 
-    public async Task<bool> ExisteAsync(string email)
+    public async Task<bool> ExisteAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await _context.Usuarios.AnyAsync(u => u.Email.Value.Contains(email));
+        return await _context.Usuarios.AnyAsync(u => u.Email.Value.Contains(email), cancellationToken);
     }
 
-    public async Task<Usuario?> ObterPorEmailAsync(string email)
+    public async Task<Usuario?> ObterPorEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email.Value == email);
+        return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email.Value == email, cancellationToken);
     }
 
     public async Task<IEnumerable<Usuario>> ConsultarUsuariosAsync(string? nome, string? email, CancellationToken cancellationToken = default)

@@ -1,10 +1,10 @@
-using EsperancaSolidaria.Application.Queries.Usuarios.Inputs;
+using EsperancaSolidaria.Application.Queries.Usuarios.Results;
 using EsperancaSolidaria.BuildingBlocks.Queries;
 
 namespace EsperancaSolidaria.Application.Queries.Usuarios.Handlers;
 
 public interface IUsuarioQueryHandler
 {
-    Task<QueryResult<PaginatedResult<UsuarioListaResult>>> HandleAsync(ConsultarUsuariosQuery query, CancellationToken cancellationToken = default);
-    Task<QueryResult<UsuarioResult>> HandleAsync(ObterUsuarioPorIdQuery query, CancellationToken cancellationToken = default);
+    Task<PaginatedResult<UsuarioListaQueryResult>> HandleAsync(ConsultarUsuariosQuery query, CancellationToken cancellationToken = default);
+    Task<UsuarioQueryResult?> HandleAsync(ObterUsuarioPorIdQuery query, CancellationToken cancellationToken = default);
 }
