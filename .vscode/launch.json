@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (web)",
+            "name": "API",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -25,6 +25,21 @@
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/src/web/EsperancaSolidaria.API/Views"
+            }
+        },
+        {
+            "name": "Worker DoacaoRealizada",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/workers/EsperancaSolidaria.Worker.DoacaoRealizada/bin/Debug/net10.0/EsperancaSolidaria.Worker.DoacaoRealizada.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/workers/EsperancaSolidaria.Worker.DoacaoRealizada",
+            "stopAtEntry": false,
+            // Configure environment variables, if needed.
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
             }
         }
     ]

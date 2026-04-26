@@ -1,7 +1,7 @@
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: solidarity-sqlserver
+    container_name: sqlserver
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Esperanca@Solidaria2026
@@ -13,24 +13,23 @@ services:
     networks:
       - esperanca-solidaria-network
 
-  # api:
-  #   build:
-  #     context: ./src
-  #     dockerfile: web/EsperancaSolidaria.API/Dockerfile
-  #   container_name: solidarity-api
-  #   ports:
-  #     - "8080:8080"
-  #     - "8081:8081"
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Development
-  #     - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=EsperancaSolidaria;User Id=sa;Password=Esperanca@Solidaria2026;TrustServerCertificate=True;MultipleActiveResultSets=true
-  #   depends_on:
-  #     - sqlserver
-  #   networks:
-  #     - esperanca-solidaria-network
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=Esperanca@Solidaria2026
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - esperanca-solidaria-network
 
 volumes:
   sqlserver_data:
+  rabbitmq_data:
 
 networks:
   esperanca-solidaria-network:

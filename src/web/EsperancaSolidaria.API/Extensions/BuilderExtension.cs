@@ -19,6 +19,8 @@ using EsperancaSolidaria.Application.Commands.Campanhas.Handlers;
 using EsperancaSolidaria.Application.Queries.Campanhas.Handlers;
 using EsperancaSolidaria.Application.Commands.Doacoes.Handlers;
 using EsperancaSolidaria.Application.Queries.Doacoes.Handlers;
+using EsperancaSolidaria.BuildingBlocks.Messaging;
+using EsperancaSolidaria.Infraestructure.Messaging;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -80,6 +82,13 @@ public static class BuilderExtension
 
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        // Message Bus
+        services.AddSingleton<IMessageBus, RabbitMqMessageBus>();
+
+        // RabbitMQ Configuration
+        services.Configure<RabbitMqOptions>(
+            configuration.GetSection("RabbitMqOptions"));
 
         // Security
         services.AddScoped<IUserContext, UserContext>();

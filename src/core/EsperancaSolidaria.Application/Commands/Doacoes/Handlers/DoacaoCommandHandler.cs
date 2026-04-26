@@ -42,7 +42,8 @@ public class DoacaoCommandHandler : IDoacaoCommandHandler
         var doacao = new Doacao(command.CampanhaId, command.DoadorId, command.Valor, command.ReferenciaPagamento);
         _doacaoRepository.Adicionar(doacao);
 
-        var eventoDoacao = new DoacaoRealizadaEvent(doacao.Id, command.CampanhaId, command.DoadorId, command.ReferenciaPagamento, command.Valor);
+        var data = new DoacaoRealizadaData(doacao.Id, command.CampanhaId, command.DoadorId, command.Valor, command.ReferenciaPagamento);
+        var eventoDoacao = new DoacaoRealizadaEvent(data, nameof(DoacaoRealizadaEvent), "esperanca_solidaria_doacao_realizada");
         campanha.AddDomainEvent(eventoDoacao);
 
         var (isCommited, commitErrorMessage) = await _unitOfWork.SaveChangesAsync(cancellationToken);

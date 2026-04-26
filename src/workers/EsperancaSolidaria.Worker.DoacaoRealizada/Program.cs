@@ -1,7 +1,7 @@
-using EsperancaSolidaria.Worker.DoacaoRealizada;
+using EsperancaSolidaria.Worker.DoacaoRealizada.Extensions;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+BuilderExtension.Configure(builder);
 
 var host = builder.Build();
 host.Run();

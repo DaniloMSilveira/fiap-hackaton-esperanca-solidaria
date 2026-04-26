@@ -1,23 +1,16 @@
+using System.Text.Json.Serialization;
 using EsperancaSolidaria.BuildingBlocks.Events;
 
 namespace EsperancaSolidaria.Domain.Events;
 
-public class DoacaoRealizadaEvent : IDomainEvent
-{
-    public Guid DoacaoId { get; set; }
-    public Guid CampanhaId { get; set; }
-    public Guid DoadorId { get; set; }
-    public decimal Valor { get; set; }
-    public string ReferenciaPagamento { get; set; }
-    public DateTime Timestamp { get; set; }
+public record DoacaoRealizadaData(Guid DoacaoId, Guid CampanhaId, Guid DoadorId, decimal Valor, string ReferenciaPagamento);
 
-    public DoacaoRealizadaEvent(Guid doacaoId, Guid campanhaId, Guid doadorId, string referenciaPagamento, decimal valor)
+public class DoacaoRealizadaEvent : DomainEvent<DoacaoRealizadaData>
+{
+    public DoacaoRealizadaEvent() { }
+    
+    public DoacaoRealizadaEvent(DoacaoRealizadaData data, string eventName, string queueName, string? correlationId = null)
+        : base(data, eventName, queueName, correlationId)
     {
-        DoacaoId = doacaoId;
-        CampanhaId = campanhaId;
-        DoadorId = doadorId;
-        ReferenciaPagamento = referenciaPagamento;
-        Valor = valor;
-        Timestamp = DateTime.Now;
     }
 }
