@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esperanca-solidaria-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: esperanca-solidaria-api
+  template:
+    metadata:
+      labels:
+        app: esperanca-solidaria-api
+    spec:
+      containers:
+        - name: api
+          image: esperanca-solidaria-api:1.0
+          restartPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: esperanca-solidaria-api-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+              ephemeral-storage: "512Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+              ephemeral-storage: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: esperanca-solidaria-api-service
+  labels:
+    app: esperanca-solidaria-api
+spec:
+  type: NodePort
+  selector:
+    app: esperanca-solidaria-api
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30000
+      name: http

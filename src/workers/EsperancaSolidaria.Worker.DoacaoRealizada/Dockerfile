@@ -9,20 +9,20 @@ COPY ["buildingblocks/EsperancaSolidaria.BuildingBlocks/EsperancaSolidaria.Build
 COPY ["core/EsperancaSolidaria.Domain/EsperancaSolidaria.Domain.csproj", "core/EsperancaSolidaria.Domain/"]
 COPY ["core/EsperancaSolidaria.Application/EsperancaSolidaria.Application.csproj", "core/EsperancaSolidaria.Application/"]
 COPY ["core/EsperancaSolidaria.Infraestructure/EsperancaSolidaria.Infraestructure.csproj", "core/EsperancaSolidaria.Infraestructure/"]
-COPY ["web/EsperancaSolidaria.API/EsperancaSolidaria.API.csproj", "web/EsperancaSolidaria.API/"]
+COPY ["workers/EsperancaSolidaria.Worker.DoacaoRealizada/EsperancaSolidaria.Worker.DoacaoRealizada.csproj", "workers/EsperancaSolidaria.Worker.DoacaoRealizada/"]
 
 # Restaura as dependências
-RUN dotnet restore "web/EsperancaSolidaria.API/EsperancaSolidaria.API.csproj"
+RUN dotnet restore "workers/EsperancaSolidaria.Worker.DoacaoRealizada/EsperancaSolidaria.Worker.DoacaoRealizada.csproj"
 
 # Copia todo o código fonte
 COPY . .
 
 # Compila o projeto
-WORKDIR "/src/web/EsperancaSolidaria.API"
-RUN dotnet build "EsperancaSolidaria.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/workers/EsperancaSolidaria.Worker.DoacaoRealizada"
+RUN dotnet build "EsperancaSolidaria.Worker.DoacaoRealizada.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publica o projeto
-RUN dotnet publish "EsperancaSolidaria.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "EsperancaSolidaria.Worker.DoacaoRealizada.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Esta fase é usada na produção
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
@@ -46,4 +46,4 @@ EXPOSE 8080
 EXPOSE 8081
 
 USER $APP_UID
-ENTRYPOINT ["dotnet", "EsperancaSolidaria.API.dll"]
+ENTRYPOINT ["dotnet", "EsperancaSolidaria.Worker.DoacaoRealizada.dll"]

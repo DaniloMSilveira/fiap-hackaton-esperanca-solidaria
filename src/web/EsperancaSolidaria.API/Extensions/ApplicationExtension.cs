@@ -10,21 +10,19 @@ public static class ApplicationExtensions
 {
     public static void Configure(WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Esperança Solidária v1");
-                c.RoutePrefix = "swagger";
-            });
-        }
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Esperança Solidária v1");
+            c.RoutePrefix = "swagger";
+        });
 
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseCustomMiddlewares();
         app.MapControllers();
+        app.MapPrometheusScrapingEndpoint();
     }
 
     public static WebApplication UseCustomMiddlewares(this WebApplication app)

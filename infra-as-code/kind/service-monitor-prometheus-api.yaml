@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: esperanca-solidaria-api-monitor
+  labels:
+    release: prometheus-grafana-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - app
+  selector:
+    matchLabels:
+      app: esperanca-solidaria-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 5s

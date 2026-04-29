@@ -42,7 +42,8 @@ public class CriarCampanhaCommandValidator : AbstractValidator<CriarCampanhaComm
 
         RuleFor(x => x.DataFim)
             .NotEmpty().WithMessage("Data de término é obrigatória.")
-            .GreaterThan(x => x.DataInicio).WithMessage("Data de término deve ser posterior à data de início.");
+            .GreaterThan(x => x.DataInicio).WithMessage("Data de término deve ser posterior à data de início.")
+            .Must(p => p > DateTime.Now).WithMessage("Data de término deve ser no futuro.");
 
         RuleFor(x => x.MetaFinanceira)
             .GreaterThan(0).WithMessage("Meta financeira deve ser maior que zero.");
