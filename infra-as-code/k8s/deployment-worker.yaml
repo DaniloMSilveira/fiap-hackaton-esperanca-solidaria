@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esperanca-solidaria-worker-doacao-realizada
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: esperanca-solidaria-worker-doacao-realizada
+  template:
+    metadata:
+      labels:
+        app: esperanca-solidaria-worker-doacao-realizada
+    spec:
+      containers:
+        - name: api
+          image: esperanca-solidaria-worker-doacao-realizada:image_tag
+          restartPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: esperanca-solidaria-worker-doacao-realizada-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+              ephemeral-storage: "512Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+              ephemeral-storage: "1Gi"

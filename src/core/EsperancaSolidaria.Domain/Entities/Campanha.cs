@@ -41,9 +41,9 @@ public class Campanha : Entity, IAggregateRoot
         UsuarioCriacao = usuarioCriacao ?? throw new ArgumentNullException(nameof(usuarioCriacao));
     }
 
-    public void AlterarDados(string titulo, string descricao, DateTime dataFim, decimal metaFinanceira, string usuario)
+    public void AlterarDados(string titulo, string descricao, DateTime dataInicio, DateTime dataFim, decimal metaFinanceira, string usuario)
     {
-        if (dataFim <= DataInicio)
+        if (dataFim <= dataInicio)
             throw new ArgumentException("Data de término deve ser posterior à data de início.", nameof(dataFim));
 
         if (metaFinanceira <= 0)
@@ -51,6 +51,7 @@ public class Campanha : Entity, IAggregateRoot
 
         Titulo = titulo ?? throw new ArgumentNullException(nameof(titulo));
         Descricao = descricao ?? throw new ArgumentNullException(nameof(descricao));
+        DataInicio = dataInicio;
         DataFim = dataFim;
         MetaFinanceira = metaFinanceira;
         DataAtualizacao = DateTime.Now;

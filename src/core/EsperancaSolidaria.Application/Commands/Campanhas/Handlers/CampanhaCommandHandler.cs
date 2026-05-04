@@ -51,7 +51,7 @@ public class CampanhaCommandHandler : ICampanhaCommandHandler
         if (campanha is null)
             return CommandResult<EditarCampanhaResult>.Fail("Campanha não encontrada.");
 
-        campanha.AlterarDados(command.Titulo, command.Descricao, command.DataFim, command.MetaFinanceira, command.Usuario);
+        campanha.AlterarDados(command.Titulo, command.Descricao, command.DataInicio, command.DataFim, command.MetaFinanceira, command.Usuario);
         _campanhaRepository.Alterar(campanha);
 
         var (isCommited, commitErrorMessage) = await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,0 +1,37 @@
+name: Pipeline CD
+
+on:
+  workflow_run:
+    workflows: ["Pipeline CI"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get image tag from CI
+        run: echo "IMAGE_TAG=${{ github.event.workflow_run.outputs.image_tag }}" >> $GITHUB_ENV
+
+      - name: Load image API into Kind
+        run: kind load docker-image esperanca-solidaria-api:${{ env.IMAGE_TAG }}
+
+      - name: Load image Worker into Kind
+        run: kind load docker-image esperanca-solidaria-worker-doacao-realizada:${{ env.IMAGE_TAG }}
+
+      - name: Replace image tag in deployment-api.yaml
+        run: |
+          sed -i "s|image: esperanca-solidaria-api:.*|image: esperanca-solidaria-api:${IMAGE_TAG}|g" infra-as-code/k8s/deployment-api.yaml
+
+      - name: Replace image tag in deployment-worker.yaml
+        run: |
+          sed -i "s|image: esperanca-solidaria-worker-doacao-realizada:.*|image: esperanca-solidaria-worker-doacao-realizada:${IMAGE_TAG}|g" infra-as-code/k8s/deployment-worker.yaml
+
+      - name: Apply Kubernetes manifests API
+        run: kubectl apply -f infra-as-code/k8s/deployment-api.yaml
+
+      - name: Apply Kubernetes manifests Worker
+        run: kubectl apply -f infra-as-code/k8s/deployment-worker.yaml
