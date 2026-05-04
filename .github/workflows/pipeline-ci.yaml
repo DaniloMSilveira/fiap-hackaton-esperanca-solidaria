@@ -24,7 +24,12 @@ jobs:
 
       - id: set_tag
         name: Define Image Tag
-        run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+        run: |
+          YEAR=$(date +%Y)
+          MONTH=$(date +%m)
+          DAY=$(date +%d)
+          TAG="1.${YEAR}.${MONTH}${DAY}.${{ github.run_number }}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image API
         run: docker build -f ./src/web/EsperancaSolidaria.API/Dockerfile -t esperanca-solidaria-api:${{ steps.set_tag.outputs.tag }} ./src

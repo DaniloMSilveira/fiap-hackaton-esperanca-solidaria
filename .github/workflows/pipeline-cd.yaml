@@ -14,8 +14,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Get image tag from CI
-        run: echo "IMAGE_TAG=${{ github.event.workflow_run.outputs.image_tag }}" >> $GITHUB_ENV
+      - name: Generate Image Tag
+        run: |
+          YEAR=$(date +%Y)
+          MONTH=$(date +%m)
+          DAY=$(date +%d)
+          TAG="1.${YEAR}.${MONTH}${DAY}.${{ github.event.workflow_run.run_number }}"
+          echo "IMAGE_TAG=${TAG}" >> $GITHUB_ENV
 
       - name: Load image API into Kind
         run: kind load docker-image esperanca-solidaria-api:${{ env.IMAGE_TAG }}
@@ -32,7 +37,7 @@ jobs:
           sed -i "s|image: esperanca-solidaria-worker-doacao-realizada:.*|image: esperanca-solidaria-worker-doacao-realizada:${IMAGE_TAG}|g" infra-as-code/k8s/deployment-worker.yaml
 
       - name: Apply Kubernetes manifests API
-        run: kubectl apply -f infra-as-code/k8s/deployment-api.yaml
+        run: kubectl apply -f infra-as-code/k8s/deployment-api.yaml -n app
 
       - name: Apply Kubernetes manifests Worker
-        run: kubectl apply -f infra-as-code/k8s/deployment-worker.yaml
+        run: kubectl apply -f infra-as-code/k8s/deployment-worker.yaml -n app
