@@ -23,10 +23,10 @@ jobs:
           echo "IMAGE_TAG=${TAG}" >> $GITHUB_ENV
 
       - name: Load image API into Kind
-        run: kind load docker-image esperanca-solidaria-api:${{ env.IMAGE_TAG }}
+        run: kind load docker-image esperanca-solidaria-api:${{ env.IMAGE_TAG }} --name fiap
 
       - name: Load image Worker into Kind
-        run: kind load docker-image esperanca-solidaria-worker-doacao-realizada:${{ env.IMAGE_TAG }}
+        run: kind load docker-image esperanca-solidaria-worker-doacao-realizada:${{ env.IMAGE_TAG }} --name fiap
 
       - name: Replace image tag in deployment-api.yaml
         run: |
