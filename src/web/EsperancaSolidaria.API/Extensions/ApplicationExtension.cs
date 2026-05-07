@@ -21,6 +21,8 @@ public static class ApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseCustomMiddlewares();
+        app.MapHealthChecks("/health/live");
+        app.MapHealthChecks("/health/ready");
         app.MapControllers();
         app.MapPrometheusScrapingEndpoint();
     }

@@ -9,8 +9,8 @@ public class DoacaoRealizadaEvent : DomainEvent<DoacaoRealizadaData>
 {
     public DoacaoRealizadaEvent() { }
     
-    public DoacaoRealizadaEvent(DoacaoRealizadaData data, string eventName, string queueName, string? correlationId = null)
-        : base(data, eventName, queueName, correlationId)
+    public DoacaoRealizadaEvent(DoacaoRealizadaData data, string? correlationId = null)
+        : base(data, nameof(DoacaoRealizadaEvent), "esperanca_solidaria_doacao_realizada", correlationId)
     {
     }
 }

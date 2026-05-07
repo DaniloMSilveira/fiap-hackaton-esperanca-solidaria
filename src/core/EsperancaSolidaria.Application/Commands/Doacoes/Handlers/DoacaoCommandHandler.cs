@@ -1,6 +1,7 @@
 using EsperancaSolidaria.Application.Commands.Doacoes.Inputs;
 using EsperancaSolidaria.Application.Commands.Doacoes.Results;
 using EsperancaSolidaria.BuildingBlocks.Commands;
+using EsperancaSolidaria.BuildingBlocks.Events;
 using EsperancaSolidaria.BuildingBlocks.Persistence;
 using EsperancaSolidaria.Domain.Entities;
 using EsperancaSolidaria.Domain.Enums;
@@ -14,12 +15,18 @@ public class DoacaoCommandHandler : IDoacaoCommandHandler
     private readonly IDoacaoRepository _doacaoRepository;
     private readonly ICampanhaRepository _campanhaRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDomainEventService _domainEventService;
 
-    public DoacaoCommandHandler(IDoacaoRepository doacaoRepository, ICampanhaRepository campanhaRepository, IUnitOfWork unitOfWork)
+    public DoacaoCommandHandler(
+        IDoacaoRepository doacaoRepository,
+        ICampanhaRepository campanhaRepository,
+        IUnitOfWork unitOfWork,
+        IDomainEventService domainEventService)
     {
         _doacaoRepository = doacaoRepository;
         _campanhaRepository = campanhaRepository;
         _unitOfWork = unitOfWork;
+        _domainEventService = domainEventService;
     }
 
     public async Task<CommandResult<CriarDoacaoResult>> HandleAsync(CriarDoacaoCommand command, CancellationToken cancellationToken = default)
@@ -43,12 +50,23 @@ public class DoacaoCommandHandler : IDoacaoCommandHandler
         _doacaoRepository.Adicionar(doacao);
 
         var data = new DoacaoRealizadaData(doacao.Id, command.CampanhaId, command.DoadorId, command.Valor, command.ReferenciaPagamento);
-        var eventoDoacao = new DoacaoRealizadaEvent(data, nameof(DoacaoRealizadaEvent), "esperanca_solidaria_doacao_realizada");
+        var eventoDoacao = new DoacaoRealizadaEvent(data);
         campanha.AddDomainEvent(eventoDoacao);
 
         var (isCommited, commitErrorMessage) = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!isCommited)
             return CommandResult<CriarDoacaoResult>.Fail($"Ocorreu um erro ao registrar a doação: {commitErrorMessage}");
+
+        // Publica e persiste os eventos de domínio
+        try
+        {
+            await _domainEventService.PublishAndPersistAsync(campanha.DomainEvents, cancellationToken);
+            campanha.ClearDomainEvents();
+        }
+        catch (Exception ex)
+        {
+            return CommandResult<CriarDoacaoResult>.Fail($"Erro ao publicar eventos: {ex.Message}");
+        }
 
         var result = new CriarDoacaoResult
         {

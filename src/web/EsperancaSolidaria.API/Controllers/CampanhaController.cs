@@ -49,7 +49,7 @@ public class CampanhaController : Controller
     }
 
     /// <summary>
-    /// Obtém todas as campanhas (apenas usuários com role GestorONG).
+    /// Obtém todas as campanhas.
     /// </summary>
     [Authorize(Roles = Roles.GestorONG)]
     [HttpGet(Name = "ConsultarCampanhas")]

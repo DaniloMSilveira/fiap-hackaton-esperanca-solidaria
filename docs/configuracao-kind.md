@@ -136,23 +136,3 @@ kind version
 ```
 
 
-## 🚀 Criando um Cluster com Kind
-
-```bash
-cd infra-as-code/kind
-kind create cluster --name fiap --config cluster-config.yaml
-```
-
-### Verificar Cluster
-
-```bash
-kubectl cluster-info --context kind-fiap
-kubectl get nodes
-```
-
-## 🧹 Deletando Cluster
-
-```bash
-kind delete cluster --name fiap
-```
-

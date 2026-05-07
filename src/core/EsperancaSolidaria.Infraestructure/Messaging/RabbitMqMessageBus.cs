@@ -121,7 +121,7 @@ public class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
             Persistent = true,
             ContentType = "application/json",
             ContentEncoding = "utf-8",
-            Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTimeSeconds())
         };
 
         try
@@ -445,7 +445,7 @@ public class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
                 { "x-failure-reason", reason },
                 { "x-retry-attempts", retryAttempts },
                 { "x-original-queue", queueName },
-                { "x-failed-at", DateTime.UtcNow.ToString("O") }
+                { "x-failed-at", DateTime.Now.ToString("O") }
             }
         };
 
@@ -499,7 +499,7 @@ public class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
             {
                 { "x-retry-count", currentAttempt },
                 { "x-original-queue", queueName },
-                { "x-sent-to-retry-at", DateTime.UtcNow.ToString("O") }
+                { "x-sent-to-retry-at", DateTime.Now.ToString("O") }
             }
         };
 

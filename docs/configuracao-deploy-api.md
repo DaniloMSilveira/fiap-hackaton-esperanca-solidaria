@@ -24,7 +24,7 @@ Este guia descreve como subir uma API .NET com SQL Server em um cluster local us
 
 ```bash
 cd infra-as-code/kind
-kind create cluster --name app --config cluster-config.yaml
+kind create cluster --name fiap --config cluster-config.yaml
 ```
 
 ---
@@ -59,23 +59,18 @@ kubectl create namespace app
 
 ---
 
-## 🗄️ 1.4 Subir SQL Server
+## 🗄️ 1.4 Subir recursos de infraestrutura (SQL Server, MongoDB e RabbitMQ)
 
 ```bash
+cd infra-as-code/kind
 kubectl apply -f deployment-sqlserver.yaml -n app
-```
-
----
-
-## 🗄️ 1.5 Subir RabbitMQ
-
-```bash
+kubectl apply -f deployment-mongodb.yaml -n app
 kubectl apply -f deployment-rabbitmq.yaml -n app
 ```
 
 ---
 
-## 🔐 1.6 Criar Secrets
+## 🔐 1.5 Criar Secrets
 
 > ⚠️ Atualize os valores em Base64 antes de aplicar
 
@@ -86,7 +81,7 @@ kubectl apply -f secret-worker.yaml -n app
 
 ---
 
-## 🌐 1.7 Subir API e Worker
+## 🌐 1.6 Subir API e Worker
 
 > Primeiro o worker para inicializar as filas, e depois a API
 
@@ -97,7 +92,7 @@ kubectl apply -f deployment-api.yaml -n app
 
 ---
 
-## ✅ 1.8 Validar aplicação
+## ✅ 1.7 Validar aplicação
 
 ```bash
 kubectl get pods -n app

@@ -16,3 +16,5 @@ nodes:
     hostPort: 9090
   - containerPort: 30005
     hostPort: 3000
+  - containerPort: 30006
+    hostPort: 27017

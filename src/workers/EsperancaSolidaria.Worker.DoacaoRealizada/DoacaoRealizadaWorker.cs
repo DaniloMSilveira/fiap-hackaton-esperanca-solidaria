@@ -1,4 +1,5 @@
 using System.Text.Json;
+using EsperancaSolidaria.BuildingBlocks.Events;
 using EsperancaSolidaria.BuildingBlocks.Messaging;
 using EsperancaSolidaria.BuildingBlocks.Persistence;
 using EsperancaSolidaria.Domain.Events;
@@ -39,55 +40,35 @@ public class DoacaoRealizadaWorker: BackgroundService
             {
                 try 
                 {
-                    await HandleAsync(evento, cancellationToken);
-                    return true;
+                    return await HandleAsync(evento, cancellationToken);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Erro ao processar evento de doação realizada.");
                     return false;
                 }
             },
             cancellationToken);
     }
 
-    public async Task HandleAsync(DoacaoRealizadaEvent message, CancellationToken cancellationToken)
+    public async Task<bool> HandleAsync(DoacaoRealizadaEvent domainEvent, CancellationToken cancellationToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
         try
         {
-            var campanhaRepository = scope.ServiceProvider.GetRequiredService<ICampanhaRepository>();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var domainEventDispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
 
-            _logger.LogInformation("Processando doação realizada: {MessageId}", message.EventId);
+            _logger.LogInformation("Despachando evento de doação realizada: {EventId}", domainEvent.EventId);
 
-            var campanha = await campanhaRepository.ObterPorIdAsync(message.Data.CampanhaId, cancellationToken);
+            // Despacha o evento para encontrar e executar os handlers registrados
+            await domainEventDispatcher.DispatchAsync(domainEvent, cancellationToken);
 
-            if (campanha == null)
-            {
-                _logger.LogError("Campanha com ID {CampanhaId} não encontrada.", message.Data.CampanhaId);
-                return;
-            }
-
-            campanha.AdicionarDoacao(message.Data.Valor);
-            campanhaRepository.Alterar(campanha);
-
-            var (isSuccess, errorMessage) = await unitOfWork.SaveChangesAsync(cancellationToken);
-            if (!isSuccess)
-            {
-                _logger.LogError("Erro ao salvar alterações no banco de dados: {ErrorMessage}", errorMessage);
-                return;
-            }
-            
-            _logger.LogInformation(
-                "Doação processada com sucesso. Campanha: {CampanhaId}, Valor: {Valor}, Novo Total: {ValorArrecadado}",
-                message.Data.CampanhaId,
-                message.Data.Valor,
-                campanha.ValorArrecadado);
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao processar doação realizada.");
-            throw;
+            return false;
         }
     }
 }

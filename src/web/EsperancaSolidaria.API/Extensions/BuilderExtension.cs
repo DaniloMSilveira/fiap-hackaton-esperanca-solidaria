@@ -21,6 +21,10 @@ using EsperancaSolidaria.Application.Commands.Doacoes.Handlers;
 using EsperancaSolidaria.Application.Queries.Doacoes.Handlers;
 using EsperancaSolidaria.BuildingBlocks.Messaging;
 using EsperancaSolidaria.Infraestructure.Messaging;
+using EsperancaSolidaria.Infraestructure.Persistence.EventSourcing;
+using EsperancaSolidaria.Infraestructure.Persistence.DomainEvents;
+using MongoDB.Driver;
+using EsperancaSolidaria.BuildingBlocks.EventSourcing;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -36,8 +40,10 @@ public static class BuilderExtension
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHttpContextAccessor();
 
+        builder.Services.AddHealthChecks();
         builder.Services.AddAuthentication(builder.Configuration);
         builder.Services.AddDataContexts(builder.Configuration, builder.Environment);
+        builder.Services.AddEventSourcing(builder.Configuration);
         builder.Services.AddServices(builder.Configuration);
         builder.Services.AddCustomSwagger();
         builder.Services.AddCustomMetrics();
@@ -75,13 +81,13 @@ public static class BuilderExtension
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // Domain Events
+        services.AddScoped<IDomainEventService, DomainEventService>();
+
         // Repositories
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ICampanhaRepository, CampanhaRepository>();
         services.AddScoped<IDoacaoRepository, DoacaoRepository>();
-
-        // Domain Events
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         // Message Bus
         services.AddSingleton<IMessageBus, RabbitMqMessageBus>();
@@ -120,6 +126,37 @@ public static class BuilderExtension
                     .AddHttpClientInstrumentation()
                     .AddPrometheusExporter();
             });
+
+        return services;
+    }
+
+    private static IServiceCollection AddEventSourcing(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Configurar conventions do MongoDB
+        MongoDbConventions.Configure();
+
+        // Configurar opções do MongoDB
+        services.Configure<MongoDbOptions>(configuration.GetSection("MongoDb"));
+
+        // Registrar MongoDB client como singleton
+        services.AddSingleton<IMongoClient>(sp =>
+        {
+            var options = configuration.GetSection("MongoDb").Get<MongoDbOptions>() 
+                ?? throw new InvalidOperationException("MongoDB configuration is missing");
+            return new MongoClient(options.ConnectionString);
+        });
+
+        // Registrar MongoDB database como singleton
+        services.AddSingleton<IMongoDatabase>(sp =>
+        {
+            var options = configuration.GetSection("MongoDb").Get<MongoDbOptions>()
+                ?? throw new InvalidOperationException("MongoDB configuration is missing");
+            var client = sp.GetRequiredService<IMongoClient>();
+            return client.GetDatabase(options.DatabaseName);
+        });
+
+        // Registrar Event Store
+        services.AddScoped<IEventStore, MongoEventStore>();
 
         return services;
     }

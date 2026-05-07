@@ -1,10 +1,13 @@
+using EsperancaSolidaria.BuildingBlocks.Events;
 using EsperancaSolidaria.BuildingBlocks.Messaging;
 using EsperancaSolidaria.BuildingBlocks.Persistence;
+using EsperancaSolidaria.Domain.Events;
 using EsperancaSolidaria.Domain.Interfaces.Repositories;
 using EsperancaSolidaria.Infraestructure.Messaging;
 using EsperancaSolidaria.Infraestructure.Persistence.Contexts;
 using EsperancaSolidaria.Infraestructure.Persistence.Repositories;
 using EsperancaSolidaria.Infraestructure.Persistence.UnitOfWork;
+using EsperancaSolidaria.Worker.DoacaoRealizada.EventHandlers;
 using Microsoft.EntityFrameworkCore;
 
 namespace EsperancaSolidaria.Worker.DoacaoRealizada.Extensions;
@@ -50,6 +53,10 @@ public static class BuilderExtension
 
         // Repositories
         services.AddScoped<ICampanhaRepository, CampanhaRepository>();
+
+        // Domain Events
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddScoped<IDomainEventHandler<DoacaoRealizadaEvent>, DoacaoRealizadaEventHandler>();
 
         // Worker
         services.AddHostedService<DoacaoRealizadaWorker>();

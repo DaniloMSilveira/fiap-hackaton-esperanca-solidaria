@@ -27,9 +27,24 @@ services:
     networks:
       - esperanca-solidaria-network
 
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Esperanca#Solidaria2026
+      - MONGO_INITDB_DATABASE=esperanca-solidaria-events
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - esperanca-solidaria-network
+
 volumes:
   sqlserver_data:
   rabbitmq_data:
+  mongodb_data:
 
 networks:
   esperanca-solidaria-network:
