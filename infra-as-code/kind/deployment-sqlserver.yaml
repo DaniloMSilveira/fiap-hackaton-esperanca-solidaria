@@ -20,20 +20,20 @@ spec:
           resources:
             requests:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "200m"
             limits:
               memory: "1Gi"
-              cpu: "1"
+              cpu: "500m"
           livenessProbe:
             tcpSocket:
               port: 1433
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 40
+            periodSeconds: 30
           readinessProbe:
             tcpSocket:
               port: 1433
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            initialDelaySeconds: 20
+            periodSeconds: 20
           env:
             - name: ACCEPT_EULA
               value: "Y"

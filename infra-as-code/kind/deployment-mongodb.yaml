@@ -20,20 +20,20 @@ spec:
           resources:
             requests:
               memory: "256Mi"
-              cpu: "100m"
+              cpu: "200m"
             limits:
               memory: "512Mi"
               cpu: "500m"
           livenessProbe:
             tcpSocket:
               port: 27017
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 40
+            periodSeconds: 30
           readinessProbe:
             tcpSocket:
               port: 27017
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            initialDelaySeconds: 20
+            periodSeconds: 20
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
               value: "root"
