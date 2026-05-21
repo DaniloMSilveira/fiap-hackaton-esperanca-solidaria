@@ -102,7 +102,7 @@ kubectl get svc -n app
 Acesse no browser:
 
 ```
-http://localhost:8080
+http://localhost:8080/swagger
 ```
 
 ---
@@ -132,7 +132,8 @@ kubectl create namespace monitoring
 
 ```bash
 helm install prometheus-grafana-stack prometheus-community/kube-prometheus-stack \
-  -f helm-prometheus-stack/values.yaml \
+  --version 85.2.0 \
+  -f helm-values/values-prometheus.yaml \
   -n monitoring
 ```
 
@@ -155,29 +156,52 @@ kubectl apply -f service-monitor-prometheus-api.yaml -n monitoring
 
 ---
 
-## 🌐 2.6 Acessar serviços
+## ✅ 2.6 Validar Serviços
 
-### 📊 Grafana
+```bash
+kubectl get pods -n monitoring
+kubectl get svc -n monitoring
+```
+
+Acesse no browser:
 
 ```
+Grafana
 http://localhost:3000
-```
 
-### 📈 Prometheus
-
-```
+Prometheus
 http://localhost:9090
 ```
 
 ---
 
+# 📊 3 - Configurar logs e tracings (Loki + Tempo)
+
+Passo 1
+
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+Passo 2
+
+helm install loki grafana/loki \
+  --version 6.29.0 \
+  -f helm-values/values-loki.yaml \
+  -n monitoring
+
+Passo 3
+
+kubectl patch svc loki -n monitoring \
+  -p '{"spec": {"type": "NodePort","ports":[{"name":"http-metrics","port":3100,"protocol":"TCP","targetPort":3100,"nodePort":30007}]}}'
+
+Passo 4 (Opcional - Reiniciar deployment da API)
+kubectl rollout restart deployment esperanca-solidaria-api -n app
+
+# 🧪 4. Testes
+
 ---
 
-# 🧪 3. Testes
-
----
-
-## ✅ 3.1 Testar API
+## ✅ 4.1 Testar API
 
 ```bash
 curl http://localhost:8080
@@ -185,7 +209,7 @@ curl http://localhost:8080
 
 ---
 
-## ✅ 3.2 Testar métricas da API
+## ✅ 4.2 Testar métricas da API
 
 ```bash
 curl http://localhost:8081/metrics
@@ -195,7 +219,7 @@ Deve retornar métricas no formato Prometheus.
 
 ---
 
-## ✅ 3.3 Validar no Prometheus
+## ✅ 4.3 Validar no Prometheus
 
 Acesse:
 
@@ -217,7 +241,7 @@ solidarity-connection-api-monitor → UP
 
 ---
 
-## ✅ 3.4 Testar queries
+## ✅ 4.4 Testar queries
 
 No Prometheus:
 
@@ -229,7 +253,7 @@ http_server_duration_seconds_count
 
 ---
 
-## ✅ 3.5 Validar no Grafana
+## ✅ 4.5 Validar no Grafana
 
 1. Acesse Grafana
 2. Vá em **Dashboards**
@@ -240,7 +264,7 @@ http_server_duration_seconds_count
 
 ---
 
-# 🧠 4. Arquitetura
+# 🧠 5. Arquitetura
 
 ```
 API (.NET) → expõe /metrics

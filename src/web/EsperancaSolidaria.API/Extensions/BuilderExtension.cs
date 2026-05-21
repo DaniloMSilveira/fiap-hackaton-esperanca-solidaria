@@ -25,6 +25,8 @@ using EsperancaSolidaria.Infraestructure.Persistence.EventSourcing;
 using EsperancaSolidaria.Infraestructure.Persistence.DomainEvents;
 using MongoDB.Driver;
 using EsperancaSolidaria.BuildingBlocks.EventSourcing;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -47,6 +49,7 @@ public static class BuilderExtension
         builder.Services.AddServices(builder.Configuration);
         builder.Services.AddCustomSwagger();
         builder.Services.AddCustomMetrics();
+        builder.Services.AddCustomLogging(builder);
     }
 
     private static IServiceCollection AddDataContexts(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
@@ -183,6 +186,44 @@ public static class BuilderExtension
                 ClockSkew = TimeSpan.Zero
             };
         });
+    }
+
+    public static IServiceCollection AddCustomLogging(
+        this IServiceCollection services,
+        WebApplicationBuilder builder)
+    {
+        var lokiUrl = builder.Configuration["Observability:LokiUrl"]
+            ?? throw new InvalidOperationException("Loki URL is not configured");
+
+        Serilog.Debugging.SelfLog.Enable(msg =>
+        {
+            Console.WriteLine(msg);
+        });
+
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.GrafanaLoki(
+                lokiUrl,
+                labels:
+                [
+                    new LokiLabel
+                    {
+                        Key = "app",
+                        Value = "esperanca-solidaria-api"
+                    },
+                    new LokiLabel
+                    {
+                        Key = "environment",
+                        Value = builder.Environment.EnvironmentName
+                    }
+                ])
+            .CreateLogger();
+
+        builder.Host.UseSerilog();
+
+        return services;
     }
 
     // // Logs
