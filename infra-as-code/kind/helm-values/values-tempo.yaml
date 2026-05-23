@@ -1,0 +1,36 @@
+replicas: 2
+
+tempo:
+  retention: 24h
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 300m
+      memory: 400Mi
+
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+
+  config:
+    push_receive:
+      protocols:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: "0.0.0.0:4317"
+            http:
+              endpoint: "0.0.0.0:4318"
+        jaeger:
+          protocols:
+            thrift_http:
+              endpoint: "0.0.0.0:14268"
+        zipkin:
+          endpoint: "0.0.0.0:9411"

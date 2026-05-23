@@ -27,6 +27,8 @@ using MongoDB.Driver;
 using EsperancaSolidaria.BuildingBlocks.EventSourcing;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
 
 namespace EsperancaSolidaria.API.Extensions;
 
@@ -48,7 +50,7 @@ public static class BuilderExtension
         builder.Services.AddEventSourcing(builder.Configuration);
         builder.Services.AddServices(builder.Configuration);
         builder.Services.AddCustomSwagger();
-        builder.Services.AddCustomMetrics();
+        builder.Services.AddCustomMetrics(builder.Configuration);
         builder.Services.AddCustomLogging(builder);
     }
 
@@ -119,15 +121,66 @@ public static class BuilderExtension
         return services;
     }
 
-    private static IServiceCollection AddCustomMetrics(this IServiceCollection services)
+    private static IServiceCollection AddCustomMetrics(this IServiceCollection services, IConfiguration configuration)
     {
+        var serviceName =
+            configuration["Observability:ServiceName"]
+            ?? "esperanca-solidaria-api";
+
+        var tempoEndpoint =
+            configuration["Observability:TempoOtlpEndpoint"]
+            ?? throw new InvalidOperationException(
+                "Tempo endpoint not configured");
+
         services.AddOpenTelemetry()
-            .WithMetrics(builder =>
+            .WithMetrics(metrics =>
             {
-                builder
+                metrics
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddPrometheusExporter();
+            })
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .SetResourceBuilder(
+                        ResourceBuilder.CreateDefault()
+                            .AddService(
+                                serviceName: serviceName,
+                                serviceVersion: "1.0.0"))
+
+                    .AddAspNetCoreInstrumentation(options =>
+                    {
+                        options.RecordException = true;
+
+                        options.Filter = httpContext =>
+                        {
+                            var path = httpContext.Request.Path;
+
+                            return !path.StartsWithSegments("/metrics")
+                                && !path.StartsWithSegments("/health")
+                                && !path.StartsWithSegments("/swagger")
+                                && !path.StartsWithSegments("/loki/api/v1/push");
+                        };
+                    })
+
+                    .AddHttpClientInstrumentation()
+
+                    .AddEntityFrameworkCoreInstrumentation(options =>
+                    {
+                        options.EnrichWithIDbCommand =
+                            (activity, command) =>
+                            {
+                                activity.SetTag(
+                                    "db.statement",
+                                    command.CommandText);
+                            };
+                    })
+
+                    .AddOtlpExporter(options =>
+                    {
+                        options.Endpoint = new Uri(tempoEndpoint);
+                    });
             });
 
         return services;

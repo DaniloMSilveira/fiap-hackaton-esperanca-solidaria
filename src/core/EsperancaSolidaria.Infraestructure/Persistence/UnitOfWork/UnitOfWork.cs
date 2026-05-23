@@ -22,6 +22,7 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             await _dbContext.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Alterações salvas com sucesso no banco de dados.");
             return (true, null);
         }
         catch (Exception ex)

@@ -197,6 +197,19 @@ kubectl patch svc loki -n monitoring \
 Passo 4 (Opcional - Reiniciar deployment da API)
 kubectl rollout restart deployment esperanca-solidaria-api -n app
 
+
+Passo 5
+
+helm install tempo grafana/tempo \
+  --version 1.23.0 \
+  -f helm-values/values-tempo.yaml \
+  -n monitoring
+
+Passo 6
+
+kubectl patch svc tempo -n monitoring \
+  -p '{"spec": {"type": "NodePort","ports":[{"name":"http-metrics","port":3200,"protocol":"TCP","targetPort":3100,"nodePort":30008}]}}'
+
 # 🧪 4. Testes
 
 ---
