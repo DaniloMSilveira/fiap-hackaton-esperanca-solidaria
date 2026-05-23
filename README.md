@@ -164,7 +164,7 @@ docs/                                                     # Documentação técn
 ### Subir com docker-compose os recursos necessários (Banco de dados e RabbitMQ)
 
 ```bash
-dotnet compose up -d
+docker compose up -d
 ```
 
 ### Restaurar dependências
