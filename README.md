@@ -131,24 +131,24 @@ O projeto adota uma arquitetura modular orientada a eventos utilizando component
 
 ```text
 src/
-├── buildingblocks/EsperancaSolidaria.BuildingBlocks/
+├── buildingblocks/EsperancaSolidaria.BuildingBlocks/     # Abstrações e modelos para CQRS, DDD, Eventos, Serializadores, etc.
 │
 ├── core/
-│   ├── EsperancaSolidaria.Application/
-│   ├── EsperancaSolidaria.Domain/
-│   └── EsperancaSolidaria.Infrastructure/
+│   ├── EsperancaSolidaria.Application/                   # Handlers CQRS, Application Services
+│   ├── EsperancaSolidaria.Domain/                        # Entidades, Eventos, Objetos de Domínio e Regras de Negócio
+│   └── EsperancaSolidaria.Infrastructure/                # Persistência, Mensageria
 │
 ├── web/
-│   └── EsperancaSolidaria.API/
+│   └── EsperancaSolidaria.API/                           # API Principal para gerenciamento de Usuários, Campanhas e Doações
 │
 └── workers/
-    └── EsperancaSolidaria.Worker.DoacaoRealizada/
+    └── EsperancaSolidaria.Worker.DoacaoRealizada/        # Consumer para atualizar o valor total arrecadado da campanha
 
 infra-as-code/
-├── k8s/
-└── kind/
+├── k8s/                                                  # Manifestos kubernetes para deploy nas pipelines de CD
+└── kind/                                                 # Manifestos kubernetes para deploy da arquitetura
 
-docs/
+docs/                                                     # Documentação técnica e exemplos
 ```
 
 ---
