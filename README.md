@@ -296,6 +296,8 @@ Grafana Tempo
 | Tempo | Distributed tracing |
 | OpenTelemetry | Instrumentação |
 
+
+
 ---
 
 ## ⚙️ CI/CD
