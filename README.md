@@ -1,134 +1,348 @@
 # EsperancaSolidaria
 
-## Descrição
+## 📖 Descrição
 
-EsperancaSolidaria é uma solução backend desenvolvida como projeto final do hackathon da pós-graduação em Arquitetura de Sistemas .NET da FIAP. O sistema suporta a ONG Esperança Solidária no gerenciamento de campanhas de arrecadação de fundos, processamento de doações e transparência financeira, implementando uma arquitetura modular com microserviços.
+EsperancaSolidaria é uma solução backend desenvolvida como projeto final do hackathon da pós-graduação em Arquitetura de Sistemas .NET da FIAP.
 
-## Arquitetura
+O sistema auxilia a ONG Esperança Solidária no gerenciamento de campanhas de arrecadação de fundos, processamento de doações e transparência financeira, implementando uma arquitetura modular orientada a eventos com foco em escalabilidade, observabilidade e boas práticas arquiteturais.
 
-O projeto adota um **monolito modular com microserviços**, utilizando padrões de arquitetura limpa, CQRS, Event Sourcing e processamento assíncrono baseado em eventos.
+---
 
-![alt text](image.png)
+## 🔧 Configuração do Ambiente Local
+
+Antes de executar a aplicação, é necessário configurar o ambiente Kubernetes local com Kind e instalar toda a infraestrutura da solução.
+
+### Configuração do Cluster Kind
+
+Documentação para criação e configuração do cluster Kubernetes local utilizando Kind:
+
+```text
+docs/configuracao-kind.md
+```
+
+### Configuração da Infraestrutura
+
+Documentação completa para instalação da infraestrutura da aplicação:
+
+- Prometheus
+- Grafana
+- Loki
+- Tempo
+- SQL Server
+- MongoDB
+- RabbitMQ
+- API
+- Worker
+
+```text
+docs/configuracao-infraestrutura.md
+```
+
+---
+
+## 🏗️ Arquitetura
+
+O projeto adota uma arquitetura modular orientada a eventos utilizando componentes desacoplados, padrões de arquitetura limpa, CQRS, Event Sourcing e processamento assíncrono.
+
+![diagrama-arquitetura](docs/diagrama-arquitetura-alto-nivel.png)
 
 ### Componentes Principais
 
-- **Building Blocks**: Fundamentos compartilhados incluindo CQRS (Commands/Queries), Domain Events, Event Sourcing e Messaging.
-- **Core**:
-  - **Domain**: Regras de negócio e entidades (Campanha, Doacao, Usuario).
-  - **Application**: Handlers CQRS organizados por contexto limitado.
-  - **Infrastructure**: Implementações de persistência (EF Core + SQL Server), messaging (RabbitMQ) e event store (MongoDB).
-- **Web**: API RESTful com ASP.NET Core, expondo endpoints para autenticação, gerenciamento de campanhas e doações.
-- **Workers**: Serviço background para processamento assíncrono de eventos de doação realizada.
+- **Building Blocks**
+  - CQRS (Commands/Queries)
+  - Domain Events
+  - Event Sourcing
+  - Messaging
+
+- **Core**
+  - **Domain** → Regras de negócio e entidades (`Campanha`, `Doacao`, `Usuario`)
+  - **Application** → Handlers CQRS organizados por contexto limitado
+  - **Infrastructure** → Persistência, mensageria e integração com serviços externos
+
+- **Web**
+  - API RESTful ASP.NET Core
+  - Autenticação JWT
+  - Swagger/OpenAPI
+  - Health Checks
+  - Métricas Prometheus
+
+- **Workers**
+  - Processamento assíncrono de eventos
+  - Consumo de mensagens RabbitMQ
+  - Atualização de campanhas
+
+---
 
 ### Fluxo de Doação
 
-1. Usuário autenticado cria doação via API.
-2. API persiste doação e publica evento `DoacaoRealizadaEvent` no RabbitMQ.
-3. Worker consome o evento, atualiza o total da campanha e persiste as mudanças.
+1. Usuário autenticado cria uma doação via API
+2. API persiste a doação no SQL Server
+3. Evento `DoacaoRealizadaEvent` é publicado no RabbitMQ
+4. Worker consome o evento
+5. Campanha é atualizada
+6. Logs, métricas e traces são enviados para a stack de observabilidade
 
-## Tecnologias
+---
 
-- **Runtime**: .NET 10.0 (C#)
-- **Framework Web**: ASP.NET Core 10.0.5
-- **ORM**: Entity Framework Core 10.0.5
-- **Bancos de Dados**: SQL Server (dados relacionais), MongoDB (event store)
-- **Mensageria**: RabbitMQ
-- **Autenticação**: JWT Bearer
-- **Documentação**: Swagger/OpenAPI
-- **Validação**: FluentValidation
-- **Observabilidade**: OpenTelemetry + Prometheus
-- **Resiliência**: Polly
-- **Containerização**: Docker
-- **Orquestração**: Kubernetes (Kind)
+## 🛠️ Tecnologias
 
-## Estrutura do Projeto
+### Backend
 
-```
+- .NET 10
+- ASP.NET Core
+- Entity Framework Core
+- FluentValidation
+- Serilog
+- Polly
+
+### Bancos de Dados
+
+- SQL Server
+- MongoDB
+
+### Mensageria
+
+- RabbitMQ
+
+### Segurança
+
+- JWT Bearer Authentication
+- BCrypt
+
+### Observabilidade
+
+- OpenTelemetry
+- Prometheus
+- Grafana
+- Loki
+- Tempo
+
+### DevOps & Infraestrutura
+
+- Docker
+- Kubernetes
+- Kind
+- Helm
+- GitHub Actions
+
+---
+
+## 📁 Estrutura do Projeto
+
+```text
 src/
-├── buildingblocks/EsperancaSolidaria.BuildingBlocks/  # CQRS, Events, Messaging
+├── buildingblocks/EsperancaSolidaria.BuildingBlocks/
+│
 ├── core/
-│   ├── EsperancaSolidaria.Application/               # Handlers CQRS
-│   ├── EsperancaSolidaria.Domain/                    # Entidades, Eventos
-│   └── EsperancaSolidaria.Infraestructure/           # Persistência, Messaging
-├── web/EsperancaSolidaria.API/                       # API REST
-└── workers/EsperancaSolidaria.Worker.DoacaoRealizada/ # Worker de doações
+│   ├── EsperancaSolidaria.Application/
+│   ├── EsperancaSolidaria.Domain/
+│   └── EsperancaSolidaria.Infrastructure/
+│
+├── web/
+│   └── EsperancaSolidaria.API/
+│
+└── workers/
+    └── EsperancaSolidaria.Worker.DoacaoRealizada/
 
 infra-as-code/
-├── k8s/                                             # Deployments K8s
-└── kind/                                            # Config Kind + Infra
+├── k8s/
+└── kind/
 
-docs/                                                # Documentação técnica
+docs/
 ```
 
-## Infraestrutura
+---
 
-### Desenvolvimento Local
+## ▶️ Como Executar Localmente
 
-Utiliza Docker Compose para subir SQL Server, RabbitMQ e MongoDB.
+### Subir com docker-compose os recursos necessários (Banco de dados e RabbitMQ)
 
 ```bash
-docker-compose up -d
+dotnet compose up -d
 ```
 
-### Kubernetes Kind
-
-Deploy em cluster Kind com autoscaling (HPA) baseado em CPU/memória.
-
-- **API**: Deployment com health checks e métricas Prometheus.
-- **Worker**: Serviço background para processamento de eventos.
-- **Infraestrutura**: SQL Server, MongoDB, RabbitMQ, Prometheus + Grafana via Helm.
-
-Para deploy:
+### Restaurar dependências
 
 ```bash
-# Criar cluster Kind
-kind create cluster --config infra-as-code/kind/cluster-config.yaml
-
-# Aplicar deployments
-kubectl apply -f infra-as-code/k8s/
+dotnet restore
 ```
 
-## Pipelines CI/CD
-
-### GitHub Actions
-
-- **Pipeline CI** (`pipeline-ci.yaml`): Build, testes, geração de tag semântica e build de imagens Docker.
-- **Pipeline CD** (`pipeline-cd.yaml`): Load de imagens no Kind, atualização de manifests e deploy via kubectl.
-
-Executa em runners self-hosted com Kind + kubectl configurado.
-
-## Como Executar
-
-### Local
-
-1. Restaurar dependências: `dotnet restore`
-2. Build: `dotnet build`
-3. Executar API: `dotnet run --project src/web/EsperancaSolidaria.API`
-4. Executar Worker: `dotnet run --project src/workers/EsperancaSolidaria.Worker.DoacaoRealizada`
-
-### Docker
+### Build da solução
 
 ```bash
-# API
-docker build -f src/web/EsperancaSolidaria.API/Dockerfile -t api .
-docker run -p 8080:8080 api
-
-# Worker
-docker build -f src/workers/EsperancaSolidaria.Worker.DoacaoRealizada/Dockerfile -t worker .
-docker run worker
+dotnet build
 ```
 
-## Segurança e Autorização
+### Executar API
 
-- **Autenticação**: JWT tokens.
-- **Roles**: GestorONG (admin), Doador (usuário).
-- **Validação**: FluentValidation em todos os comandos.
-- **Criptografia**: Senhas com BCrypt.
+```bash
+dotnet run --project src/web/EsperancaSolidaria.API
+```
 
-## Observabilidade
+### Executar Worker
 
-- Health checks: `/health/live`, `/health/ready`.
-- Métricas Prometheus: Requisições HTTP, tempos de resposta.
-- Tracing: OpenTelemetry.
+```bash
+dotnet run --project src/workers/EsperancaSolidaria.Worker.DoacaoRealizada
+```
+---
 
-Para mais detalhes, consulte a documentação em `docs/`.
+## ☸️ Kubernetes + Kind
+
+Todos os serviços da aplicação executam em um cluster Kubernetes local utilizando Kind.
+
+### Infraestrutura Utilizada
+
+- SQL Server
+- MongoDB
+- RabbitMQ
+- Prometheus
+- Grafana
+- Loki
+- Tempo
+
+### Componentes Kubernetes
+
+- Deployments
+- Services
+- HPA
+- ConfigMaps
+- Secrets
+- ServiceMonitor
+- Namespaces
+
+---
+
+## 🔐 Segurança e Autorização
+
+- Autenticação JWT
+- Roles:
+  - `GestorONG`
+  - `Doador`
+- Validações com FluentValidation
+- Senhas criptografadas com BCrypt
+
+---
+
+## 📊 Observabilidade
+
+A solução implementa observabilidade fim-a-fim utilizando OpenTelemetry e stack Grafana.
+
+---
+
+### Métricas
+
+As métricas são exportadas no formato Prometheus através do endpoint:
+
+```text
+/metrics
+```
+
+### Métricas coletadas
+
+- Requisições HTTP
+- Tempo de resposta
+- Throughput
+- Uso de recursos
+- Health checks
+
+---
+
+### Logs Centralizados
+
+Os logs estruturados são enviados para o Grafana Loki utilizando Serilog.
+
+### Características
+
+- Logs estruturados em JSON
+- Correlação distribuída
+- Centralização via Loki
+- Visualização no Grafana Explore
+
+---
+
+### Distributed Tracing
+
+A aplicação utiliza OpenTelemetry + Grafana Tempo para tracing distribuído.
+
+### Traces coletados
+
+- Requisições HTTP
+- Entity Framework Core
+- SQL Server
+- Exceptions
+- Dependências externas
+
+### Fluxo de tracing
+
+```text
+ASP.NET Core
+    ↓
+OpenTelemetry
+    ↓
+OTLP Exporter
+    ↓
+Grafana Tempo
+```
+
+---
+
+## 📡 Stack de Observabilidade
+
+| Ferramenta | Responsabilidade |
+|---|---|
+| Prometheus | Métricas |
+| Grafana | Dashboards e visualização |
+| Loki | Logs centralizados |
+| Tempo | Distributed tracing |
+| OpenTelemetry | Instrumentação |
+
+---
+
+## ⚙️ CI/CD
+
+### Pipeline CI
+
+Arquivo:
+
+```text
+pipeline-ci.yaml
+```
+
+Responsável por:
+
+- Build
+- Testes automatizados
+- Versionamento semântico
+- Build de imagens Docker
+
+### Pipeline CD
+
+Arquivo:
+
+```text
+pipeline-cd.yaml
+```
+
+Responsável por:
+
+- Load de imagens no Kind
+- Atualização de manifests Kubernetes
+- Deploy automatizado
+
+---
+
+## 📚 Documentação
+
+Consulte a pasta:
+
+```text
+docs/
+```
+
+Documentações disponíveis:
+
+- Configuração do Kind
+- Configuração da infraestrutura
+- Diagrama da arquitetura da solução
+- Exemplo de comandos do Entity Framework (EF Core)
+- Requisitos do projeto da pós graduação

@@ -3,13 +3,13 @@
 
 Este guia cobre a instalação dos principais recursos necessários para rodar um cluster Kubernetes local com Kind em uma distro Ubuntu limpa.
 
-## 📦 Pré-requisitos
+### Pré-requisitos
 
 - Ubuntu atualizado (20.04+ recomendado)
 - Usuário com permissão `sudo`
 - Acesso à internet
 
-## 🧱 Atualizando o Sistema
+### Atualizando o Sistema
 
 ```bash
 sudo apt update && sudo apt upgrade -y
