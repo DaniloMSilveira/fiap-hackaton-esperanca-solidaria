@@ -1,5 +1,11 @@
 # EsperancaSolidaria
 
+## 🎥 Apresentação do Projeto
+
+Confira a apresentação completa do projeto no YouTube:
+
+🔗 https://www.youtube.com/watch?v=ar1OfZhxDVY
+
 ## 📖 Descrição
 
 EsperancaSolidaria é uma solução backend desenvolvida como projeto final do hackathon da pós-graduação em Arquitetura de Sistemas .NET da FIAP.
